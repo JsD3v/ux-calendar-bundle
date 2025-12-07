@@ -1,0 +1,34 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Controllers
+    JeanSebastienChristophe\CalendarBundle\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+        bind:
+            $eventClass: '%calendar.event_class%'
+
+    # Repositories
+    JeanSebastienChristophe\CalendarBundle\Repository\:
+        resource: '../src/Repository/'
+        tags: ['doctrine.repository_service']
+
+    # Forms
+    JeanSebastienChristophe\CalendarBundle\Form\:
+        resource: '../src/Form/'
+        tags: ['form.type']
+
+    # Services
+    JeanSebastienChristophe\CalendarBundle\Service\ThemeDetector:
+        arguments:
+            $assetMapper: '@Symfony\Component\AssetMapper\AssetMapperInterface'
+            $projectDir: '%kernel.project_dir%'
+
+    # Twig Extension
+    JeanSebastienChristophe\CalendarBundle\Twig\CalendarExtension:
+        arguments:
+            $themeDetector: '@JeanSebastienChristophe\CalendarBundle\Service\ThemeDetector'
+            $configuredTheme: '%calendar.theme%'
+        tags: ['twig.extension']

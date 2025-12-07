@@ -1,0 +1,171 @@
+<div class="calendar-grid">
+    {# En-tête des jours de la semaine #}
+    <div class="calendar-header">
+        {% set weekDays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] %}
+        {% for day in weekDays %}
+            <div class="calendar-header-day">{{ day }}</div>
+        {% endfor %}
+    </div>
+
+    {# Grille des jours #}
+    <div class="calendar-body">
+        {% for week in calendar_data %}
+            {% for cell in week %}
+                {% if cell is null %}
+                    {# Cellule vide #}
+                    <div class="calendar-cell calendar-cell-empty"></div>
+                {% else %}
+                    {# Cellule avec un jour #}
+                    <div class="calendar-cell {{ cell.is_today ? 'calendar-cell-today' : '' }}"
+                         data-date="{{ cell.date|date('Y-m-d') }}">
+
+                        <div class="calendar-day-number">
+                            <a href="{{ path('calendar_event_new', {date: cell.date|date('Y-m-d')}) }}"
+                               class="calendar-day-link"
+                               data-turbo-frame="event-modal"
+                               title="Créer un événement le {{ cell.date|date('d/m/Y') }}">
+                                {{ cell.day }}
+                            </a>
+                        </div>
+
+                        {# Liste des événements du jour #}
+                        <div class="calendar-events" id="day-{{ cell.date|date('Y-m-d') }}">
+                            {% for event in cell.events %}
+                                {% include '@Calendar/calendar/_event.html.twig' with {event: event} %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.calendar-grid {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.calendar-header-day {
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    border-right: 1px solid #dee2e6;
+}
+
+.calendar-header-day:last-child {
+    border-right: none;
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(120px, auto);
+}
+
+.calendar-cell {
+    min-height: 120px;
+    border-right: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+    padding: 8px;
+    position: relative;
+    background: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-cell:hover {
+    background-color: #f8f9fa;
+}
+
+.calendar-cell:nth-child(7n) {
+    border-right: none;
+}
+
+.calendar-cell-empty {
+    background: #f8f9fa;
+    cursor: default;
+}
+
+.calendar-cell-empty:hover {
+    background: #f8f9fa;
+}
+
+.calendar-cell-today {
+    background-color: #e7f3ff;
+}
+
+.calendar-cell-today:hover {
+    background-color: #d0e7ff;
+}
+
+.calendar-day-number {
+    font-size: 14px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 4px;
+}
+
+.calendar-day-link {
+    color: inherit;
+    text-decoration: none;
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.calendar-day-link:hover {
+    background-color: #e9ecef;
+    color: inherit;
+    text-decoration: none;
+}
+
+.calendar-cell-today .calendar-day-number {
+    color: #0d6efd;
+    font-weight: 700;
+}
+
+.calendar-cell-today .calendar-day-link {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.calendar-cell-today .calendar-day-link:hover {
+    background-color: #0b5ed7;
+    color: white;
+}
+
+.calendar-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+@media (max-width: 768px) {
+    .calendar-header-day {
+        font-size: 12px;
+        padding: 8px 4px;
+    }
+    
+    .calendar-cell {
+        min-height: 80px;
+        padding: 4px;
+    }
+    
+    .calendar-day-number {
+        font-size: 12px;
+    }
+}
+</style>

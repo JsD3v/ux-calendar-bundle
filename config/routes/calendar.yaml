@@ -1,0 +1,6 @@
+# Calendar Bundle Routes
+# This file is automatically loaded by Symfony Flex
+
+calendar_bundle:
+    resource: '@CalendarBundle/src/Controller/'
+    type: attribute

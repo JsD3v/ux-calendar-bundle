@@ -1,0 +1,61 @@
+{% extends '@!Calendar/base.html.twig' %}
+
+{% block title %}Calendrier - {{ current_date|date('F Y') }}{% endblock %}
+
+{% block calendar_body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-4">Calendrier</h1>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <a href="{{ path('calendar_event_month', {
+                        year: current_date|date_modify('-1 month')|date('Y'),
+                        month: current_date|date_modify('-1 month')|date('m')
+                    }) }}" 
+                       class="btn btn-outline-primary"
+                       data-turbo-frame="calendar">
+                        &larr; Mois précédent
+                    </a>
+                    
+                    <a href="{{ path('calendar_event_index') }}" 
+                       class="btn btn-outline-secondary mx-2"
+                       data-turbo-frame="calendar">
+                        Aujourd'hui
+                    </a>
+                    
+                    <a href="{{ path('calendar_event_month', {
+                        year: current_date|date_modify('+1 month')|date('Y'),
+                        month: current_date|date_modify('+1 month')|date('m')
+                    }) }}" 
+                       class="btn btn-outline-primary"
+                       data-turbo-frame="calendar">
+                        Mois suivant &rarr;
+                    </a>
+                </div>
+                
+                <div>
+                    <h2 class="mb-0">{{ current_date|format_datetime(locale='fr', pattern='MMMM yyyy') }}</h2>
+                </div>
+                
+                <div>
+                    <a href="{{ path('calendar_event_new') }}" 
+                       class="btn btn-success"
+                       data-turbo-frame="event-modal">
+                        <i class="bi bi-plus-lg"></i> Nouvel événement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <turbo-frame id="calendar" data-turbo-action="advance">
+        {% include '@Calendar/event/_calendar_grid.html.twig' %}
+    </turbo-frame>
+</div>
+
+<turbo-frame id="event-modal"></turbo-frame>
+
+<div data-controller="calendar"></div>
+{% endblock %}

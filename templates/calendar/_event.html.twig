@@ -1,0 +1,17 @@
+<a href="{{ path('calendar_event_edit', {id: event.id}) }}"
+   class="calendar-event"
+   id="event-{{ event.id }}"
+   style="background-color: {{ event.color }}; border-left-color: {{ event.color }};"
+   data-turbo-frame="event-modal"
+   data-event-id="{{ event.id }}">
+    <div class="calendar-event-content">
+        <div class="calendar-event-title">{{ event.title }}</div>
+        {% if not event.allDay %}
+            <div class="calendar-event-time">
+                {{ event.startDate|date('H:i') }} - {{ event.endDate|date('H:i') }}
+            </div>
+        {% else %}
+            <div class="calendar-event-time">Journée entière</div>
+        {% endif %}
+    </div>
+</a>

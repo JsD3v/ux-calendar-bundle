@@ -1,0 +1,63 @@
+/* ============================================
+   CalendarBundle - Bootstrap Theme
+   Mapping des variables Bootstrap
+   ============================================ */
+
+:root {
+    /* Couleurs Bootstrap */
+    --calendar-primary: var(--bs-primary, #0d6efd);
+    --calendar-secondary: var(--bs-secondary, #6c757d);
+    --calendar-success: var(--bs-success, #198754);
+    --calendar-danger: var(--bs-danger, #dc3545);
+    --calendar-warning: var(--bs-warning, #ffc107);
+    --calendar-info: var(--bs-info, #0dcaf0);
+
+    /* Couleurs de fond Bootstrap */
+    --calendar-bg: var(--bs-body-bg, #fff);
+    --calendar-bg-secondary: var(--bs-secondary-bg, #f8f9fa);
+    --calendar-bg-hover: var(--bs-tertiary-bg, #f1f3f5);
+
+    /* Texte Bootstrap */
+    --calendar-text: var(--bs-body-color, #212529);
+    --calendar-text-muted: var(--bs-secondary-color, #6c757d);
+    --calendar-text-light: var(--bs-light, #ffffff);
+
+    /* Bordures Bootstrap */
+    --calendar-border: var(--bs-border-color, #dee2e6);
+    --calendar-border-radius: var(--bs-border-radius, 0.375rem);
+    --calendar-border-width: var(--bs-border-width, 1px);
+
+    /* Typographie Bootstrap */
+    --calendar-font-family: var(--bs-font-sans-serif);
+    --calendar-font-size: var(--bs-body-font-size, 1rem);
+    --calendar-font-size-sm: var(--bs-body-font-size-sm, 0.875rem);
+    --calendar-font-size-lg: var(--bs-body-font-size-lg, 1.125rem);
+    --calendar-font-weight-normal: var(--bs-body-font-weight, 400);
+    --calendar-font-weight-bold: var(--bs-font-weight-bold, 600);
+
+    /* Espacements Bootstrap */
+    --calendar-spacing: var(--bs-spacer, 1rem);
+    --calendar-spacing-sm: calc(var(--bs-spacer, 1rem) * 0.5);
+    --calendar-spacing-lg: calc(var(--bs-spacer, 1rem) * 1.5);
+
+    /* Ombres Bootstrap */
+    --calendar-shadow: var(--bs-box-shadow, 0 0.125rem 0.25rem rgba(0,0,0,0.075));
+    --calendar-shadow-sm: var(--bs-box-shadow-sm, 0 0.125rem 0.25rem rgba(0,0,0,0.075));
+    --calendar-shadow-lg: var(--bs-box-shadow-lg, 0 1rem 3rem rgba(0,0,0,0.175));
+}
+
+/* Classes helpers compatibles Bootstrap */
+.calendar-btn {
+    /* Utilise les styles de boutons Bootstrap */
+    padding: var(--bs-btn-padding-y, 0.375rem) var(--bs-btn-padding-x, 0.75rem);
+    font-size: var(--bs-btn-font-size, 1rem);
+    border-radius: var(--bs-btn-border-radius, 0.375rem);
+    font-family: var(--bs-btn-font-family);
+    font-weight: var(--bs-btn-font-weight, 400);
+    line-height: var(--bs-btn-line-height, 1.5);
+    transition: var(--bs-btn-transition, color .15s ease-in-out, background-color .15s ease-in-out);
+}
+
+.calendar-modal {
+    /* Compatible avec Bootstrap modal */
+}

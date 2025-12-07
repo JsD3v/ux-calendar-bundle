@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-refresh-method" content="morph">
+    <meta name="turbo-refresh-scroll" content="preserve">
+    <title>{% block calendar_title %}Calendrier{% endblock %}</title>
+
+    {# Injection automatique du CSS selon le thème détecté #}
+    {{ calendar_theme_css()|raw }}
+
+    {# Framework CSS (si chargé par l'utilisateur) #}
+    {% if calendar_theme() == 'bootstrap' %}
+        {# Bootstrap est déjà chargé par l'utilisateur via importmap #}
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    {% endif %}
+
+    {% block calendar_stylesheets %}{% endblock %}
+</head>
+<body>
+    {# Zone pour les messages flash (Turbo Streams) #}
+    <div id="flash-messages" class="container mt-3"></div>
+
+    {# Messages flash normaux #}
+    {% for type, messages in app.flashes %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    {% block calendar_body %}{% endblock %}
+
+    {# Scripts #}
+    {% if calendar_theme() == 'bootstrap' %}
+        {# Bootstrap JS si utilisé #}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    {% endif %}
+
+    {% block importmap %}
+        {{ importmap('app') }}
+    {% endblock %}
+
+    {% block calendar_javascripts %}{% endblock %}
+</body>
+</html>

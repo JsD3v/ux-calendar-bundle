@@ -1,0 +1,241 @@
+{# templates/admin/dashboard.html.twig #}
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    <h1><i class="fa fa-home"></i> Tableau de bord</h1>
+{% endblock %}
+
+{% block main %}
+    {# Statistics Cards #}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Aujourd'hui</h6>
+                            <h2 class="card-title mb-0">{{ statistics.events_today }}</h2>
+                        </div>
+                        <div>
+                            <i class="fa fa-calendar-day fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-primary-dark">
+                    <a href="{{ path('calendar_index') }}" target="_blank" class="text-white text-decoration-none">
+                        Voir le calendrier <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Ce mois</h6>
+                            <h2 class="card-title mb-0">{{ statistics.events_this_month }}</h2>
+                        </div>
+                        <div>
+                            <i class="fa fa-calendar fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-success-dark">
+                    {% set now = date() %}
+                    <a href="{{ path('calendar_month', {year: now|date('Y'), month: now|date('m')}) }}"
+                       target="_blank"
+                       class="text-white text-decoration-none">
+                        Voir ce mois <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">À venir</h6>
+                            <h2 class="card-title mb-0">{{ statistics.upcoming_events }}</h2>
+                        </div>
+                        <div>
+                            <i class="fa fa-clock fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-info-dark">
+                    <a href="{{ path('calendar_event_new') }}" class="text-white text-decoration-none">
+                        Nouvel événement <i class="fa fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Total</h6>
+                            <h2 class="card-title mb-0">{{ statistics.total_events }}</h2>
+                        </div>
+                        <div>
+                            <i class="fa fa-list fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-secondary-dark">
+                    <a href="{{ ea_url().setController('JeanSebastienChristophe\\CalendarBundle\\Admin\\EventCrudController').setAction('index') }}"
+                       class="text-white text-decoration-none">
+                        Gérer les événements <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# Upcoming Events #}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fa fa-clock text-info"></i> Événements à venir</h5>
+                    <a href="{{ ea_url().setController('JeanSebastienChristophe\\CalendarBundle\\Admin\\EventCrudController').setAction('index') }}"
+                       class="btn btn-sm btn-primary">
+                        Voir tous
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if upcoming_events|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for event in upcoming_events %}
+                                <a href="{{ path('calendar_event_edit', {id: event.id}) }}"
+                                   class="list-group-item list-group-item-action"
+                                   data-turbo-frame="event-modal">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                <span class="badge"
+                                                      style="background-color: {{ event.color }}">
+                                                    &nbsp;&nbsp;&nbsp;
+                                                </span>
+                                                {{ event.title }}
+                                            </h6>
+                                            {% if event.description %}
+                                                <p class="mb-1 text-muted small">
+                                                    {{ event.description|length > 100
+                                                        ? event.description|slice(0, 100) ~ '...'
+                                                        : event.description }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted text-nowrap ms-2">
+                                            <i class="fa fa-calendar"></i> {{ event.startDate|date('d/m/Y') }}<br>
+                                            {% if not event.allDay %}
+                                                <i class="fa fa-clock"></i> {{ event.startDate|date('H:i') }}
+                                            {% else %}
+                                                <i class="fa fa-sun"></i> Journée entière
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="card-body text-center text-muted">
+                            <i class="fa fa-calendar-xmark fa-3x mb-3"></i>
+                            <p>Aucun événement à venir</p>
+                            <a href="{{ path('calendar_event_new') }}" class="btn btn-primary">
+                                <i class="fa fa-plus"></i> Créer un événement
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Recent Events #}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fa fa-history text-success"></i> Événements récents</h5>
+                    <a href="{{ ea_url().setController('JeanSebastienChristophe\\CalendarBundle\\Admin\\EventCrudController').setAction('index') }}"
+                       class="btn btn-sm btn-primary">
+                        Voir tous
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_events|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for event in recent_events %}
+                                <a href="{{ path('calendar_event_edit', {id: event.id}) }}"
+                                   class="list-group-item list-group-item-action"
+                                   data-turbo-frame="event-modal">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                <span class="badge"
+                                                      style="background-color: {{ event.color }}">
+                                                    &nbsp;&nbsp;&nbsp;
+                                                </span>
+                                                {{ event.title }}
+                                            </h6>
+                                            <small class="text-muted">
+                                                Créé le {{ event.createdAt|date('d/m/Y à H:i') }}
+                                            </small>
+                                        </div>
+                                        <small class="text-muted text-nowrap ms-2">
+                                            {{ event.startDate|date('d/m/Y') }}
+                                        </small>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="card-body text-center text-muted">
+                            <i class="fa fa-calendar fa-3x mb-3"></i>
+                            <p>Aucun événement</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Optional: Chart (requires symfony/ux-chartjs) #}
+    {% set chart = calendar_widget.eventsPerMonthChart() %}
+    {% if chart %}
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fa fa-chart-bar text-primary"></i> Statistiques mensuelles</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ render_chart(chart) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Turbo Frame for modal editing #}
+    <turbo-frame id="event-modal"></turbo-frame>
+{% endblock %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    {# Include calendar CSS for modal #}
+    {{ calendar_theme_css()|raw }}
+
+    <style>
+        .bg-primary-dark { background-color: rgba(13, 110, 253, 0.8); }
+        .bg-success-dark { background-color: rgba(25, 135, 84, 0.8); }
+        .bg-info-dark { background-color: rgba(13, 202, 240, 0.8); }
+        .bg-secondary-dark { background-color: rgba(108, 117, 125, 0.8); }
+        .opacity-50 { opacity: 0.5; }
+    </style>
+{% endblock %}

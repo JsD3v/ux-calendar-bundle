@@ -1,0 +1,62 @@
+/* ============================================
+   CalendarBundle - Tailwind Theme
+   Mapping des variables Tailwind
+   ============================================ */
+
+:root {
+    /* Couleurs Tailwind */
+    --calendar-primary: rgb(59 130 246);        /* blue-500 */
+    --calendar-secondary: rgb(107 114 128);     /* gray-500 */
+    --calendar-success: rgb(34 197 94);         /* green-500 */
+    --calendar-danger: rgb(239 68 68);          /* red-500 */
+    --calendar-warning: rgb(234 179 8);         /* yellow-500 */
+    --calendar-info: rgb(6 182 212);            /* cyan-500 */
+
+    /* Couleurs de fond Tailwind */
+    --calendar-bg: rgb(255 255 255);            /* white */
+    --calendar-bg-secondary: rgb(249 250 251);  /* gray-50 */
+    --calendar-bg-hover: rgb(243 244 246);      /* gray-100 */
+
+    /* Texte Tailwind */
+    --calendar-text: rgb(17 24 39);             /* gray-900 */
+    --calendar-text-muted: rgb(107 114 128);    /* gray-500 */
+    --calendar-text-light: rgb(255 255 255);    /* white */
+
+    /* Bordures Tailwind */
+    --calendar-border: rgb(209 213 219);        /* gray-300 */
+    --calendar-border-radius: 0.5rem;           /* rounded-lg */
+    --calendar-border-width: 1px;
+
+    /* Typographie Tailwind */
+    --calendar-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --calendar-font-size: 1rem;                 /* text-base */
+    --calendar-font-size-sm: 0.875rem;          /* text-sm */
+    --calendar-font-size-lg: 1.125rem;          /* text-lg */
+    --calendar-font-weight-normal: 400;
+    --calendar-font-weight-bold: 600;
+
+    /* Espacements Tailwind */
+    --calendar-spacing: 1rem;                   /* 4 */
+    --calendar-spacing-sm: 0.5rem;              /* 2 */
+    --calendar-spacing-lg: 1.5rem;              /* 6 */
+
+    /* Ombres Tailwind */
+    --calendar-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
+    --calendar-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+    --calendar-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* shadow-lg */
+}
+
+/* Si vous utilisez Tailwind avec @layer */
+/*
+@layer base {
+    :root {
+        --calendar-primary: theme('colors.blue.500');
+        --calendar-success: theme('colors.green.500');
+        --calendar-danger: theme('colors.red.500');
+        --calendar-border: theme('colors.gray.300');
+        --calendar-border-radius: theme('borderRadius.lg');
+        --calendar-font-family: theme('fontFamily.sans');
+        --calendar-shadow: theme('boxShadow.md');
+    }
+}
+*/

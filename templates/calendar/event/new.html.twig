@@ -1,0 +1,62 @@
+{% extends '@!Calendar/base.html.twig' %}
+
+{% block title %}Nouvel événement{% endblock %}
+
+{% block calendar_body %}
+<turbo-frame id="event-modal">
+    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nouvel événement</h5>
+                    <a href="{{ path('calendar_event_index') }}" 
+                       class="btn-close" 
+                       data-turbo-frame="event-modal"
+                       aria-label="Close"></a>
+                </div>
+                
+                {{ form_start(form, {
+                    'attr': {
+                        'data-turbo': 'true',
+                        'data-turbo-frame': 'event-modal'
+                    }
+                }) }}
+                
+                <div class="modal-body">
+                    {{ form_row(form.title) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form_row(form.startDate) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.endDate) }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_row(form.allDay) }}
+                    </div>
+                    
+                    {{ form_row(form.description) }}
+                    
+                    {{ form_row(form.color) }}
+                </div>
+                
+                <div class="modal-footer">
+                    <a href="{{ path('calendar_event_index') }}" 
+                       class="btn btn-secondary"
+                       data-turbo-frame="event-modal">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-lg"></i> Créer l'événement
+                    </button>
+                </div>
+                
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</turbo-frame>
+{% endblock %}

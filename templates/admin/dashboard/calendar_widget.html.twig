@@ -1,0 +1,199 @@
+{# Calendar Dashboard Widget for EasyAdmin #}
+<div class="card calendar-dashboard-widget">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+            <i class="fa fa-calendar me-2"></i>
+            Calendrier
+        </h5>
+        <a href="{{ path('calendar_index') }}" class="btn btn-sm btn-primary" target="_blank">
+            <i class="fa fa-external-link"></i> Ouvrir
+        </a>
+    </div>
+
+    <div class="card-body">
+        {# Statistics Row #}
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card bg-primary text-white rounded p-3 text-center">
+                    <div class="stat-number h3 mb-0">{{ stats.total_events }}</div>
+                    <div class="stat-label small">Total événements</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card bg-success text-white rounded p-3 text-center">
+                    <div class="stat-number h3 mb-0">{{ stats.events_this_month }}</div>
+                    <div class="stat-label small">Ce mois</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card bg-info text-white rounded p-3 text-center">
+                    <div class="stat-number h3 mb-0">{{ stats.upcoming_events }}</div>
+                    <div class="stat-label small">À venir</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card bg-warning text-dark rounded p-3 text-center">
+                    <div class="stat-number h3 mb-0">{{ stats.events_today }}</div>
+                    <div class="stat-label small">Aujourd'hui</div>
+                </div>
+            </div>
+        </div>
+
+        {# Mini Calendar #}
+        <div class="mini-calendar mb-4">
+            <div class="mini-calendar-header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">{{ current_date|format_datetime(locale='fr', pattern='MMMM yyyy') }}</h6>
+                </div>
+
+                <div class="mini-calendar-weekdays">
+                    <div>L</div>
+                    <div>M</div>
+                    <div>M</div>
+                    <div>J</div>
+                    <div>V</div>
+                    <div>S</div>
+                    <div>D</div>
+                </div>
+            </div>
+
+            <div class="mini-calendar-days">
+                {% for week in calendar_data %}
+                    {% for cell in week %}
+                        {% if cell is null %}
+                            <div class="mini-day empty"></div>
+                        {% else %}
+                            <div class="mini-day {{ cell.is_today ? 'today' : '' }} {{ cell.events|length > 0 ? 'has-events' : '' }}"
+                                 title="{{ cell.events|length }} événement(s)">
+                                <span class="day-number">{{ cell.day }}</span>
+                                {% if cell.events|length > 0 %}
+                                    <span class="event-indicator">{{ cell.events|length }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Upcoming Events List #}
+        <div class="upcoming-events">
+            <h6 class="mb-3">
+                <i class="fa fa-clock me-2"></i>
+                Prochains événements
+            </h6>
+
+            {% if upcoming_events|length > 0 %}
+                <div class="list-group list-group-flush">
+                    {% for event in upcoming_events %}
+                        <div class="list-group-item px-0 d-flex align-items-center">
+                            <div class="event-color-indicator me-3" style="background-color: {{ event.color }};"></div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ event.title }}</div>
+                                <small class="text-muted">
+                                    {{ event.startDate|date('d/m/Y') }}
+                                    {% if not event.allDay %}
+                                        à {{ event.startDate|date('H:i') }}
+                                    {% else %}
+                                        (Journée entière)
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <a href="{{ ea_url().setController('JeanSebastienChristophe\\\\CalendarBundle\\\\Admin\\\\EventCrudController').setAction('edit').setEntityId(event.id) }}"
+                               class="btn btn-sm btn-outline-secondary">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-muted text-center py-3">
+                    <i class="fa fa-calendar-times fa-2x mb-2"></i>
+                    <div>Aucun événement à venir</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.calendar-dashboard-widget {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-card {
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.mini-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.mini-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+
+.mini-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+}
+
+.mini-day:hover:not(.empty) {
+    background-color: #f0f0f0;
+}
+
+.mini-day.today {
+    background-color: #3788d8;
+    color: white;
+    font-weight: bold;
+}
+
+.mini-day.has-events {
+    font-weight: bold;
+}
+
+.mini-day.empty {
+    color: #ddd;
+    cursor: default;
+}
+
+.event-indicator {
+    position: absolute;
+    bottom: 0;
+    font-size: 8px;
+    background-color: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-color-indicator {
+    width: 4px;
+    height: 40px;
+    border-radius: 2px;
+}
+</style>

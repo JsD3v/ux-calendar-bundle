@@ -1,0 +1,11 @@
+# Calendar Bundle Configuration
+# This file is automatically loaded by Symfony Flex
+
+calendar:
+    route_prefix: /calendar
+    views:
+        enabled: [month]
+        default: month
+    features:
+        all_day_events: true
+        colors: true
