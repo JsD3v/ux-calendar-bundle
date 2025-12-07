@@ -3,5 +3,6 @@
     <template></template>
 </turbo-stream>
 
-{# Recharger le calendrier pour afficher l'événement sur toutes les dates #}
-<turbo-stream action="refresh" request-id="{{ 'refresh-' ~ random() }}"></turbo-stream>
+{# Recharger la frame du calendrier via Turbo #}
+<turbo-stream action="update" target="calendar" source="{{ path('calendar_month', {year: year, month: month}) }}">
+</turbo-stream>

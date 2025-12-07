@@ -91,8 +91,13 @@ class CalendarController extends AbstractController
 
             // Si la requête vient de Turbo, on renvoie un Stream
             if ($this->isTurboStreamRequest($request)) {
+                $year = $event->getStartDate()->format('Y');
+                $month = $event->getStartDate()->format('m');
+
                 $response = $this->render('@Calendar/calendar/stream/created.stream.html.twig', [
                     'event' => $event,
+                    'year' => $year,
+                    'month' => $month,
                 ]);
                 $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
                 return $response;
@@ -122,8 +127,13 @@ class CalendarController extends AbstractController
 
             // Si la requête vient de Turbo, on renvoie un Stream
             if ($this->isTurboStreamRequest($request)) {
+                $year = $event->getStartDate()->format('Y');
+                $month = $event->getStartDate()->format('m');
+
                 $response = $this->render('@Calendar/calendar/stream/updated.stream.html.twig', [
                     'event' => $event,
+                    'year' => $year,
+                    'month' => $month,
                 ]);
                 $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
                 return $response;
