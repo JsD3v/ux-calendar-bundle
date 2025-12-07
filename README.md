@@ -38,6 +38,14 @@ php bin/console make:migration
 php bin/console doctrine:migrations:migrate
 ```
 
+**Important** : Après l'installation, videz le cache Symfony pour que les assets du bundle soient correctement enregistrés :
+
+```bash
+php bin/console cache:clear
+```
+
+Les assets CSS du bundle sont automatiquement exposés via AssetMapper. Aucune commande `assets:install` n'est nécessaire.
+
 Stimulus (copie du contrôleur) :
 
 ```bash

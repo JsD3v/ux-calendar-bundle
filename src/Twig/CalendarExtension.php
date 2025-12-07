@@ -3,6 +3,7 @@
 namespace JeanSebastienChristophe\CalendarBundle\Twig;
 
 use JeanSebastienChristophe\CalendarBundle\Service\ThemeDetector;
+use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -10,6 +11,7 @@ class CalendarExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ThemeDetector $themeDetector,
+        private readonly AssetMapperInterface $assetMapper,
         private readonly string $configuredTheme = 'auto'
     ) {
     }
@@ -37,13 +39,20 @@ class CalendarExtension extends AbstractExtension
     {
         $theme = $this->getTheme();
 
-        $coreCSS = '<link rel="stylesheet" href="/bundles/calendar/styles/calendar-core.css">';
+        // Get the asset paths from AssetMapper
+        $coreAsset = $this->assetMapper->getAsset('styles/calendar-core.css');
+        $coreUrl = $coreAsset ? $coreAsset->publicPath : '/bundles/calendar/styles/calendar-core.css';
+        $coreCSS = '<link rel="stylesheet" href="' . $coreUrl . '">';
 
-        $themeCSS = match($theme) {
-            'bootstrap' => '<link rel="stylesheet" href="/bundles/calendar/styles/themes/bootstrap.css">',
-            'tailwind' => '<link rel="stylesheet" href="/bundles/calendar/styles/themes/tailwind.css">',
-            default => '<link rel="stylesheet" href="/bundles/calendar/styles/themes/default.css">',
+        $themeFile = match($theme) {
+            'bootstrap' => 'styles/themes/bootstrap.css',
+            'tailwind' => 'styles/themes/tailwind.css',
+            default => 'styles/themes/default.css',
         };
+
+        $themeAsset = $this->assetMapper->getAsset($themeFile);
+        $themeUrl = $themeAsset ? $themeAsset->publicPath : '/bundles/calendar/' . $themeFile;
+        $themeCSS = '<link rel="stylesheet" href="' . $themeUrl . '">';
 
         return $coreCSS . "\n" . $themeCSS;
     }

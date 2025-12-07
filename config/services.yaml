@@ -30,5 +30,6 @@ services:
     JeanSebastienChristophe\CalendarBundle\Twig\CalendarExtension:
         arguments:
             $themeDetector: '@JeanSebastienChristophe\CalendarBundle\Service\ThemeDetector'
+            $assetMapper: '@Symfony\Component\AssetMapper\AssetMapperInterface'
             $configuredTheme: '%calendar.theme%'
         tags: ['twig.extension']
