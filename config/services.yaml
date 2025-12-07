@@ -10,6 +10,14 @@ services:
         bind:
             $eventClass: '%calendar.event_class%'
 
+    # Value Resolver
+    JeanSebastienChristophe\CalendarBundle\ValueResolver\EventValueResolver:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $eventClass: '%calendar.event_class%'
+        tags:
+            - { name: 'controller.argument_value_resolver', priority: 150 }
+
     # Repositories
     JeanSebastienChristophe\CalendarBundle\Repository\:
         resource: '../src/Repository/'
