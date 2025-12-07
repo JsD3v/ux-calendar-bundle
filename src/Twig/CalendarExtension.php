@@ -11,8 +11,8 @@ class CalendarExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ThemeDetector $themeDetector,
-        private readonly string $configuredTheme = 'auto',
-        private readonly ?AssetMapperInterface $assetMapper = null
+        private readonly ?AssetMapperInterface $assetMapper = null,
+        private readonly string $configuredTheme = 'auto'
     ) {
     }
 
@@ -39,21 +39,21 @@ class CalendarExtension extends AbstractExtension
     {
         $theme = $this->getTheme();
 
-        // Prefer AssetMapper when available, otherwise fall back to the public bundle paths
+        // Use AssetMapper logical paths
         $coreUrl = '/bundles/calendar/styles/calendar-core.css';
         if ($this->assetMapper !== null) {
-            $coreAsset = $this->assetMapper->getAsset('styles/calendar-core.css');
+            $coreAsset = $this->assetMapper->getAsset('@calendar-bundle/styles/calendar-core.css');
             $coreUrl = $coreAsset ? $coreAsset->publicPath : $coreUrl;
         }
         $coreCSS = '<link rel="stylesheet" href="' . $coreUrl . '">';
 
         $themeFile = match($theme) {
-            'bootstrap' => 'styles/themes/bootstrap.css',
-            'tailwind' => 'styles/themes/tailwind.css',
-            default => 'styles/themes/default.css',
+            'bootstrap' => '@calendar-bundle/styles/themes/bootstrap.css',
+            'tailwind' => '@calendar-bundle/styles/themes/tailwind.css',
+            default => '@calendar-bundle/styles/themes/default.css',
         };
 
-        $themeUrl = '/bundles/calendar/' . $themeFile;
+        $themeUrl = str_replace('@calendar-bundle/', '/bundles/calendar/', $themeFile);
         if ($this->assetMapper !== null) {
             $themeAsset = $this->assetMapper->getAsset($themeFile);
             $themeUrl = $themeAsset ? $themeAsset->publicPath : $themeUrl;
