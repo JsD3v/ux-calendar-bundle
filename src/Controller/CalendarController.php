@@ -147,7 +147,8 @@ class CalendarController extends AbstractController
     {
         // Support both DELETE and POST with _method=DELETE
         if ($this->isCsrfTokenValid('delete'.$event->getId(), $request->request->get('_token'))) {
-            // Sauvegarder les dates avant suppression pour le redirect
+            // Sauvegarder les données avant suppression (car l'ID sera perdu après flush)
+            $eventId = $event->getId();
             $eventYear = $event->getStartDate()->format('Y');
             $eventMonth = $event->getStartDate()->format('m');
 
@@ -157,7 +158,7 @@ class CalendarController extends AbstractController
             // Si la requête vient de Turbo, on renvoie un Stream
             if ($this->isTurboStreamRequest($request)) {
                 $response = $this->render('@Calendar/calendar/stream/deleted.stream.html.twig', [
-                    'event' => $event,
+                    'eventId' => $eventId,
                 ]);
                 $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
                 return $response;

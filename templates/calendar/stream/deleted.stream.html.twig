@@ -1,6 +1,6 @@
 {# Supprimer toutes les occurrences de l'événement du calendrier #}
-{# On utilise un sélecteur CSS pour supprimer tous les éléments avec data-event-id="{{ event.id }}" #}
-<turbo-stream action="remove" targets="[data-event-id='{{ event.id }}']">
+{# On utilise un sélecteur CSS pour supprimer tous les éléments avec data-event-id="{{ eventId }}" #}
+<turbo-stream action="remove" targets="[data-event-id='{{ eventId }}']">
 </turbo-stream>
 
 {# Fermer le modal #}
