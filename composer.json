@@ -23,10 +23,7 @@
         "doctrine/orm": "^2.0|^3.0",
         "doctrine/doctrine-bundle": "^2.0"
     },
-    "require-dev": {
-        "phpunit/phpunit": "^10.0",
-        "symfony/phpunit-bridge": "^7.0"
-    },
+    "require-dev": {},
     "suggest": {
         "easycorp/easyadmin-bundle": "For admin panel integration with CRUD controller and dashboard widgets (^4.0)",
         "symfony/ux-chartjs": "For displaying event statistics charts in the dashboard (^2.0)"
