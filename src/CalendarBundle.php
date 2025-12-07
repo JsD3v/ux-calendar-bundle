@@ -2,7 +2,9 @@
 
 namespace JeanSebastienChristophe\CalendarBundle;
 
+use JeanSebastienChristophe\CalendarBundle\DependencyInjection\CalendarExtension as CalendarDIExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
@@ -27,6 +29,11 @@ class CalendarBundle extends AbstractBundle
                 ],
             ],
         ]);
+    }
+
+    public function getContainerExtension(): ?ExtensionInterface
+    {
+        return $this->extension ??= new CalendarDIExtension();
     }
 
     public function getPath(): string
