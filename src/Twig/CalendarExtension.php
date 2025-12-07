@@ -11,8 +11,8 @@ class CalendarExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ThemeDetector $themeDetector,
-        private readonly ?AssetMapperInterface $assetMapper = null,
-        private readonly string $configuredTheme = 'auto'
+        private readonly string $configuredTheme = 'auto',
+        private readonly ?AssetMapperInterface $assetMapper = null
     ) {
     }
 
