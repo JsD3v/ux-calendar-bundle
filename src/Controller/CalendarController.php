@@ -142,9 +142,10 @@ class CalendarController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'calendar_event_delete', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'calendar_event_delete', methods: ['POST', 'DELETE'])]
     public function delete(Request $request, CalendarEventInterface $event): Response
     {
+        // Support both DELETE and POST with _method=DELETE
         if ($this->isCsrfTokenValid('delete'.$event->getId(), $request->request->get('_token'))) {
             // Sauvegarder les dates avant suppression pour le redirect
             $eventYear = $event->getStartDate()->format('Y');
