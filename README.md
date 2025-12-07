@@ -1,4 +1,5 @@
 # CalendarBundle pour Symfony 7.4 / 8
+[![CI - Tests PHP 8.4](https://github.com/jean-sebastien-christophe/ux-calendar-bundle/actions/workflows/test.yml/badge.svg)](https://github.com/jean-sebastien-christophe/ux-calendar-bundle/actions/workflows/test.yml)
 
 Bundle calendrier léger pour Symfony 7.4+ et 8 basé sur **Turbo** et **Stimulus**, sans dépendances externes de type FullCalendar. Idéal pour une intégration rapide avec un minimum de configuration.
 
