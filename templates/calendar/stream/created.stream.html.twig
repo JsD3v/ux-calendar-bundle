@@ -1,11 +1,7 @@
-{# Ajouter l'événement dans la cellule du jour #}
-<turbo-stream action="append" target="day-{{ event.startDate|date('Y-m-d') }}">
-    <template>
-        {% include '@Calendar/calendar/_event.html.twig' with {event: event} %}
-    </template>
-</turbo-stream>
-
-{# Fermer le modal #}
+{# Fermer le modal d'abord #}
 <turbo-stream action="update" target="event-modal">
     <template></template>
 </turbo-stream>
+
+{# Recharger le calendrier pour afficher l'événement sur toutes les dates #}
+<turbo-stream action="refresh" request-id="{{ 'refresh-' ~ random() }}"></turbo-stream>

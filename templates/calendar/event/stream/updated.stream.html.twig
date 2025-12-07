@@ -2,12 +2,6 @@
     <template></template>
 </turbo-stream>
 
-<turbo-stream action="replace" target="event-{{ event.id }}">
-    <template>
-        {% include '@Calendar/event/_event.html.twig' with {event: event} %}
-    </template>
-</turbo-stream>
-
 <turbo-stream action="prepend" target="flash-messages">
     <template>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -16,3 +10,6 @@
         </div>
     </template>
 </turbo-stream>
+
+{# Recharger le calendrier pour afficher l'événement mis à jour sur toutes les dates #}
+<turbo-stream action="refresh" request-id="{{ 'refresh-' ~ random() }}"></turbo-stream>
