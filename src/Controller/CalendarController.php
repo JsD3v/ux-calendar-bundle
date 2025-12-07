@@ -91,13 +91,22 @@ class CalendarController extends AbstractController
 
             // Si la requête vient de Turbo, on renvoie un Stream
             if ($this->isTurboStreamRequest($request)) {
-                $year = $event->getStartDate()->format('Y');
-                $month = $event->getStartDate()->format('m');
+                $year = (int) $event->getStartDate()->format('Y');
+                $month = (int) $event->getStartDate()->format('m');
+
+                // Recharger les données du calendrier
+                $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
+                $repository = $this->entityManager->getRepository($this->eventClass);
+                $events = $repository->findByMonth($year, $month);
+                $calendarData = $this->buildCalendarGrid($year, $month, $events);
 
                 $response = $this->render('@Calendar/calendar/stream/created.stream.html.twig', [
                     'event' => $event,
                     'year' => $year,
                     'month' => $month,
+                    'current_date' => $currentDate,
+                    'calendar_data' => $calendarData,
+                    'events' => $events,
                 ]);
                 $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
                 return $response;
@@ -127,13 +136,22 @@ class CalendarController extends AbstractController
 
             // Si la requête vient de Turbo, on renvoie un Stream
             if ($this->isTurboStreamRequest($request)) {
-                $year = $event->getStartDate()->format('Y');
-                $month = $event->getStartDate()->format('m');
+                $year = (int) $event->getStartDate()->format('Y');
+                $month = (int) $event->getStartDate()->format('m');
+
+                // Recharger les données du calendrier
+                $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
+                $repository = $this->entityManager->getRepository($this->eventClass);
+                $events = $repository->findByMonth($year, $month);
+                $calendarData = $this->buildCalendarGrid($year, $month, $events);
 
                 $response = $this->render('@Calendar/calendar/stream/updated.stream.html.twig', [
                     'event' => $event,
                     'year' => $year,
                     'month' => $month,
+                    'current_date' => $currentDate,
+                    'calendar_data' => $calendarData,
+                    'events' => $events,
                 ]);
                 $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
                 return $response;

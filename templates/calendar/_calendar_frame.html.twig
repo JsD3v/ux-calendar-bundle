@@ -1,0 +1,42 @@
+{# Turbo Frame pour le calendrier - inclut navigation et grille #}
+<turbo-frame id="calendar" data-turbo-action="advance">
+    {# Navigation du calendrier #}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <a href="{{ path('calendar_month', {
+                year: current_date|date_modify('-1 month')|date('Y'),
+                month: current_date|date_modify('-1 month')|date('m')
+            }) }}"
+               class="btn btn-outline-primary">
+                &larr; Mois précédent
+            </a>
+
+            <a href="{{ path('calendar_index') }}"
+               class="btn btn-outline-secondary mx-2">
+                Aujourd'hui
+            </a>
+
+            <a href="{{ path('calendar_month', {
+                year: current_date|date_modify('+1 month')|date('Y'),
+                month: current_date|date_modify('+1 month')|date('m')
+            }) }}"
+               class="btn btn-outline-primary">
+                Mois suivant &rarr;
+            </a>
+        </div>
+
+        <div>
+            <h2 class="mb-0">{{ current_date|format_datetime(locale='fr', pattern='MMMM yyyy') }}</h2>
+        </div>
+
+        <div>
+            <a href="{{ path('calendar_event_new') }}"
+               class="btn btn-success"
+               data-turbo-frame="event-modal">
+                <i class="bi bi-plus-lg"></i> Nouvel événement
+            </a>
+        </div>
+    </div>
+
+    {% include '@Calendar/calendar/_grid.html.twig' %}
+</turbo-frame>
