@@ -26,4 +26,10 @@ interface CalendarEventInterface
 
     public function getCreatedAt(): \DateTimeInterface;
     public function getUpdatedAt(): \DateTimeInterface;
+
+    public function getExcludedDates(): array;
+    public function setExcludedDates(?array $excludedDates): static;
+    public function isExcludedDate(\DateTimeInterface $date): bool;
+    public function excludeDate(\DateTimeInterface $date): static;
+    public function includeDate(\DateTimeInterface $date): static;
 }

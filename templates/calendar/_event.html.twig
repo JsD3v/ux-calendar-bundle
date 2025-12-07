@@ -1,17 +1,33 @@
-<a href="{{ path('calendar_event_edit', {id: event.id}) }}"
-   class="calendar-event"
-   id="event-{{ event.id }}"
-   style="background-color: {{ event.color }}; border-left-color: {{ event.color }};"
-   data-turbo-frame="event-modal"
-   data-event-id="{{ event.id }}">
-    <div class="calendar-event-content">
-        <div class="calendar-event-title">{{ event.title }}</div>
-        {% if not event.allDay %}
-            <div class="calendar-event-time">
-                {{ event.startDate|date('H:i') }} - {{ event.endDate|date('H:i') }}
-            </div>
-        {% else %}
-            <div class="calendar-event-time">Journée entière</div>
-        {% endif %}
-    </div>
-</a>
+<div class="calendar-event-wrapper" data-event-id="{{ event.id }}" data-event-date="{{ currentDate|date('Y-m-d') }}">
+    <a href="{{ path('calendar_event_edit', {id: event.id}) }}"
+       class="calendar-event"
+       id="event-{{ event.id }}"
+       style="background-color: {{ event.color }}; border-left-color: {{ event.color }};"
+       data-turbo-frame="event-modal">
+        <div class="calendar-event-content">
+            <div class="calendar-event-title">{{ event.title }}</div>
+            {% if not event.allDay %}
+                <div class="calendar-event-time">
+                    {{ event.startDate|date('H:i') }} - {{ event.endDate|date('H:i') }}
+                </div>
+            {% else %}
+                <div class="calendar-event-time">Journée entière</div>
+            {% endif %}
+        </div>
+    </a>
+    {# Bouton pour exclure cette occurrence uniquement si l'événement dure plus d'un jour #}
+    {% set eventDuration = event.endDate.diff(event.startDate).days %}
+    {% if eventDuration > 0 %}
+        <form method="post"
+              action="{{ path('calendar_event_exclude_date', {id: event.id, date: currentDate|date('Y-m-d')}) }}"
+              class="calendar-event-exclude-form"
+              data-turbo="true"
+              data-turbo-stream="true"
+              onsubmit="return confirm('Supprimer cet événement pour le {{ currentDate|date('d/m/Y') }} uniquement ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('exclude' ~ event.id ~ currentDate|date('Y-m-d')) }}">
+            <button type="submit" class="btn-event-exclude" title="Supprimer pour ce jour uniquement">
+                <i class="bi bi-x"></i>
+            </button>
+        </form>
+    {% endif %}
+</div>

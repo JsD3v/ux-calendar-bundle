@@ -170,6 +170,42 @@ class CalendarController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/exclude/{date}', name: 'calendar_event_exclude_date', methods: ['POST'])]
+    public function excludeDate(Request $request, CalendarEventInterface $event, string $date): Response
+    {
+        // Valider le token CSRF
+        if (!$this->isCsrfTokenValid('exclude' . $event->getId() . $date, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token');
+        }
+
+        // Valider et parser la date
+        try {
+            $dateToExclude = new \DateTime($date);
+        } catch (\Exception $e) {
+            throw $this->createNotFoundException('Date invalide');
+        }
+
+        // Exclure la date
+        $event->excludeDate($dateToExclude);
+        $this->entityManager->flush();
+
+        // Si la requête vient de Turbo, on renvoie un Stream
+        if ($this->isTurboStreamRequest($request)) {
+            $response = $this->render('@Calendar/calendar/stream/date_excluded.stream.html.twig', [
+                'eventId' => $event->getId(),
+                'excludedDate' => $date,
+            ]);
+            $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
+            return $response;
+        }
+
+        $this->addFlash('success', 'Événement supprimé pour le ' . $dateToExclude->format('d/m/Y'));
+        return $this->redirectToRoute('calendar_month', [
+            'year' => $dateToExclude->format('Y'),
+            'month' => $dateToExclude->format('m'),
+        ]);
+    }
+
     #[Route('/{id}', name: 'calendar_event_delete', methods: ['POST', 'DELETE'])]
     public function delete(Request $request, CalendarEventInterface $event): Response
     {

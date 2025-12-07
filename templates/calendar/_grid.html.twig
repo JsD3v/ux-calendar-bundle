@@ -31,7 +31,10 @@
                         {# Liste des événements du jour #}
                         <div class="calendar-events" id="day-{{ cell.date|date('Y-m-d') }}">
                             {% for event in cell.events %}
-                                {% include '@Calendar/calendar/_event.html.twig' with {event: event} %}
+                                {# Ne pas afficher si cette date est exclue #}
+                                {% if not event.isExcludedDate(cell.date) %}
+                                    {% include '@Calendar/calendar/_event.html.twig' with {event: event, currentDate: cell.date} %}
+                                {% endif %}
                             {% endfor %}
                         </div>
                     </div>
@@ -151,6 +154,49 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+}
+
+.calendar-event-wrapper {
+    position: relative;
+    display: block;
+}
+
+.calendar-event-wrapper:hover .btn-event-exclude {
+    opacity: 1;
+}
+
+.calendar-event-exclude-form {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    margin: 0;
+}
+
+.btn-event-exclude {
+    background: rgba(220, 53, 69, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background-color 0.2s;
+    color: white;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.btn-event-exclude:hover {
+    background: rgba(187, 45, 59, 1);
+    opacity: 1 !important;
+}
+
+.btn-event-exclude i {
+    font-size: 12px;
 }
 
 @media (max-width: 768px) {

@@ -44,6 +44,9 @@ trait CalendarEventTrait
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $excludedDates = [];
+
     public function getTitle(): ?string
     {
         return $this->title;
@@ -136,5 +139,47 @@ trait CalendarEventTrait
     public function setUpdatedAtValue(): void
     {
         $this->updatedAt = new \DateTime();
+    }
+
+    public function getExcludedDates(): array
+    {
+        return $this->excludedDates ?? [];
+    }
+
+    public function setExcludedDates(?array $excludedDates): static
+    {
+        $this->excludedDates = $excludedDates;
+        return $this;
+    }
+
+    public function isExcludedDate(\DateTimeInterface $date): bool
+    {
+        $dateString = $date->format('Y-m-d');
+        return in_array($dateString, $this->getExcludedDates(), true);
+    }
+
+    public function excludeDate(\DateTimeInterface $date): static
+    {
+        $dateString = $date->format('Y-m-d');
+        $excluded = $this->getExcludedDates();
+
+        if (!in_array($dateString, $excluded, true)) {
+            $excluded[] = $dateString;
+            $this->excludedDates = $excluded;
+        }
+
+        return $this;
+    }
+
+    public function includeDate(\DateTimeInterface $date): static
+    {
+        $dateString = $date->format('Y-m-d');
+        $excluded = $this->getExcludedDates();
+
+        $this->excludedDates = array_values(array_filter($excluded, function($d) use ($dateString) {
+            return $d !== $dateString;
+        }));
+
+        return $this;
     }
 }
