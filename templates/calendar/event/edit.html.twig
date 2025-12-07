@@ -44,11 +44,12 @@
                 </div>
                 
                 <div class="modal-footer">
-                    <form method="post" 
-                          action="{{ path('calendar_event_delete', {id: event.id}) }}" 
+                    <form method="post"
+                          action="{{ path('calendar_event_delete', {id: event.id}) }}"
                           onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');"
                           style="display: inline;"
-                          data-turbo="true">
+                          data-turbo="true"
+                          data-turbo-stream="true">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-danger me-auto">

@@ -63,7 +63,7 @@
                       onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');"
                       class="position-absolute bottom-0 start-0 p-3"
                       data-turbo="true"
-                      data-turbo-frame="event-modal">
+                      data-turbo-stream="true">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="btn btn-danger">
