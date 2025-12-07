@@ -1,6 +1,6 @@
-# CalendarBundle pour Symfony 7
+# CalendarBundle pour Symfony 7.4 / 8
 
-Bundle calendrier léger pour Symfony 7 basé sur **Turbo** et **Stimulus**, sans dépendances externes de type FullCalendar. Idéal pour une intégration rapide avec un minimum de configuration.
+Bundle calendrier léger pour Symfony 7.4+ et 8 basé sur **Turbo** et **Stimulus**, sans dépendances externes de type FullCalendar. Idéal pour une intégration rapide avec un minimum de configuration.
 
 ## Fonctionnalités clés
 
