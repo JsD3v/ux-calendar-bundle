@@ -144,41 +144,64 @@ public function findEventsByColor(string $color): array
 
 ## Personnaliser l'entité Event
 
-### Étendre l'entité
+### Créer une entité personnalisée
+
+L'entité configurée doit implémenter `CalendarEventInterface`. Le trait `CalendarEventTrait` fournit les champs et méthodes communs (`title`, `startDate`, `endDate`, `allDay`, `description`, `color`, dates d'exclusion, etc.).
 
 ```php
 <?php
 
 namespace App\Entity;
 
-use JeanSebastienChristophe\CalendarBundle\Entity\Event as BaseEvent;
+use App\Repository\CustomEventRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventInterface;
+use JeanSebastienChristophe\CalendarBundle\Trait\CalendarEventTrait;
 
-#[ORM\Entity]
-class CustomEvent extends BaseEvent
+#[ORM\Entity(repositoryClass: CustomEventRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+class CustomEvent implements CalendarEventInterface
 {
+    use CalendarEventTrait;
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $location = null;
-    
+
     #[ORM\ManyToOne(targetEntity: User::class)]
     private ?User $organizer = null;
-    
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     public function getLocation(): ?string
     {
         return $this->location;
     }
-    
+
     public function setLocation(?string $location): self
     {
         $this->location = $location;
         return $this;
     }
-    
+
     public function getOrganizer(): ?User
     {
         return $this->organizer;
     }
-    
+
     public function setOrganizer(?User $organizer): self
     {
         $this->organizer = $organizer;
@@ -187,9 +210,54 @@ class CustomEvent extends BaseEvent
 }
 ```
 
-### Utiliser votre entité custom
+### Créer le repository associé
 
-Vous devrez ensuite surcharger le contrôleur et les formulaires pour utiliser votre entité personnalisée.
+Le contrôleur du bundle charge la vue mensuelle via `findByMonth()`. Le repository de votre entité doit donc implémenter `CalendarEventRepositoryInterface`.
+
+```php
+<?php
+
+namespace App\Repository;
+
+use App\Entity\CustomEvent;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRepositoryInterface;
+
+/**
+ * @extends ServiceEntityRepository<CustomEvent>
+ */
+class CustomEventRepository extends ServiceEntityRepository implements CalendarEventRepositoryInterface
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, CustomEvent::class);
+    }
+
+    public function findByMonth(int $year, int $month): array
+    {
+        $startDate = new \DateTime(sprintf('%d-%02d-01 00:00:00', $year, $month));
+        $endDate = (clone $startDate)->modify('last day of this month')->setTime(23, 59, 59);
+
+        return $this->createQueryBuilder('e')
+            ->where('e.startDate BETWEEN :start AND :end')
+            ->orWhere('e.endDate BETWEEN :start AND :end')
+            ->orWhere('e.startDate <= :start AND e.endDate >= :end')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->orderBy('e.startDate', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+}
+```
+
+### Configurer le bundle
+
+```yaml
+calendar:
+    event_class: App\Entity\CustomEvent
+```
 
 ## Événements Symfony (Event Dispatcher)
 

@@ -314,11 +314,13 @@ To use your own custom entity with EasyAdmin:
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventInterface;
 use JeanSebastienChristophe\CalendarBundle\Trait\CalendarEventTrait;
-use Doctrine\ORM\Mapping as ORM;
+use App\Repository\MyCustomEventRepository;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MyCustomEventRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class MyCustomEvent implements CalendarEventInterface
 {
     use CalendarEventTrait;
@@ -335,6 +337,12 @@ class MyCustomEvent implements CalendarEventInterface
     #[ORM\ManyToOne(targetEntity: User::class)]
     private ?User $organizer = null;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -344,7 +352,50 @@ class MyCustomEvent implements CalendarEventInterface
 }
 ```
 
-### 2. Create Custom CRUD Controller
+### 2. Create the Repository
+
+The calendar controller loads monthly events through `findByMonth()`. When using a custom entity, its repository must implement `CalendarEventRepositoryInterface`.
+
+```php
+<?php
+// src/Repository/MyCustomEventRepository.php
+
+namespace App\Repository;
+
+use App\Entity\MyCustomEvent;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRepositoryInterface;
+
+/**
+ * @extends ServiceEntityRepository<MyCustomEvent>
+ */
+class MyCustomEventRepository extends ServiceEntityRepository implements CalendarEventRepositoryInterface
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, MyCustomEvent::class);
+    }
+
+    public function findByMonth(int $year, int $month): array
+    {
+        $startDate = new \DateTime(sprintf('%d-%02d-01 00:00:00', $year, $month));
+        $endDate = (clone $startDate)->modify('last day of this month')->setTime(23, 59, 59);
+
+        return $this->createQueryBuilder('e')
+            ->where('e.startDate BETWEEN :start AND :end')
+            ->orWhere('e.endDate BETWEEN :start AND :end')
+            ->orWhere('e.startDate <= :start AND e.endDate >= :end')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->orderBy('e.startDate', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+}
+```
+
+### 3. Create Custom CRUD Controller
 
 ```php
 <?php
@@ -381,14 +432,14 @@ class MyCustomEventCrudController extends BaseEventCrudController
 }
 ```
 
-### 3. Update Dashboard
+### 4. Update Dashboard
 
 ```php
 yield MenuItem::linkToCrud('Mes Événements', 'fa fa-calendar', MyCustomEvent::class)
     ->setController(MyCustomEventCrudController::class);
 ```
 
-### 4. Configure the Bundle
+### 5. Configure the Bundle
 
 ```yaml
 # config/packages/calendar.yaml
@@ -463,7 +514,8 @@ Make sure:
 Verify:
 1. Entity implements `CalendarEventInterface`
 2. Configuration updated: `calendar.event_class`
-3. Cache cleared: `php bin/console cache:clear`
+3. Entity repository implements `CalendarEventRepositoryInterface`
+4. Cache cleared: `php bin/console cache:clear`
 
 ---
 
@@ -516,4 +568,4 @@ Copy these files to your application and customize them!
 
 ---
 
-**Need help?** Open an issue on [GitHub](https://github.com/JsD3v/calendar-bundle/issues).
+**Need help?** Open an issue on [GitHub](https://github.com/JsD3v/ux-calendar-bundle/issues).

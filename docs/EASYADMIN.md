@@ -276,7 +276,7 @@ services:
 
 ## 📝 Exemple complet
 
-Voir le dossier `examples/easyadmin/` pour un exemple complet d'intégration.
+Voir le dossier `docs/examples/` pour un exemple complet d'intégration.
 
 ---
 
