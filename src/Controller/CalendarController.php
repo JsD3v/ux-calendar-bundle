@@ -3,6 +3,7 @@
 namespace JeanSebastienChristophe\CalendarBundle\Controller;
 
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventInterface;
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRepositoryInterface;
 use JeanSebastienChristophe\CalendarBundle\Form\EventType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,7 +41,7 @@ class CalendarController extends AbstractController
         $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
 
         // Récupérer les événements du mois
-        $repository = $this->entityManager->getRepository($this->eventClass);
+        $repository = $this->eventRepository();
         $events = $repository->findByMonth($year, $month);
 
         // Calcul des informations du calendrier
@@ -96,7 +97,7 @@ class CalendarController extends AbstractController
 
                 // Recharger les données du calendrier
                 $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
-                $repository = $this->entityManager->getRepository($this->eventClass);
+                $repository = $this->eventRepository();
                 $events = $repository->findByMonth($year, $month);
                 $calendarData = $this->buildCalendarGrid($year, $month, $events);
 
@@ -141,7 +142,7 @@ class CalendarController extends AbstractController
 
                 // Recharger les données du calendrier
                 $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
-                $repository = $this->entityManager->getRepository($this->eventClass);
+                $repository = $this->eventRepository();
                 $events = $repository->findByMonth($year, $month);
                 $calendarData = $this->buildCalendarGrid($year, $month, $events);
 
@@ -246,6 +247,21 @@ class CalendarController extends AbstractController
     private function isTurboStreamRequest(Request $request): bool
     {
         return str_contains($request->headers->get('Accept', ''), 'text/vnd.turbo-stream.html');
+    }
+
+    private function eventRepository(): CalendarEventRepositoryInterface
+    {
+        $repository = $this->entityManager->getRepository($this->eventClass);
+
+        if (!$repository instanceof CalendarEventRepositoryInterface) {
+            throw new \LogicException(sprintf(
+                'The repository for event class "%s" must implement "%s".',
+                $this->eventClass,
+                CalendarEventRepositoryInterface::class
+            ));
+        }
+
+        return $repository;
     }
 
     /**

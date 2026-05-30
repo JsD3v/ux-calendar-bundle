@@ -1,0 +1,13 @@
+# Composer
+/vendor/
+
+# PHPUnit
+/.phpunit.result.cache
+/.phpunit.cache/
+
+# PHPStan
+/.phpstan/
+
+# OS / IDE
+.DS_Store
+/.idea/

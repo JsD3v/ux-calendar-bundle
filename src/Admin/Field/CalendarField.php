@@ -4,6 +4,7 @@ namespace JeanSebastienChristophe\CalendarBundle\Admin\Field;
 
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
  * Custom EasyAdmin field that displays a mini calendar with events
@@ -19,7 +20,7 @@ final class CalendarField implements FieldInterface
     public const OPTION_CLICKABLE_EVENTS = 'clickableEvents';
     public const OPTION_CALENDAR_HEIGHT = 'calendarHeight';
 
-    public static function new(string $propertyName, ?string $label = null): self
+    public static function new(string $propertyName, TranslatableInterface|string|bool|null $label = null): self
     {
         return (new self())
             ->setProperty($propertyName)

@@ -2,6 +2,7 @@
 
 namespace JeanSebastienChristophe\CalendarBundle\Repository;
 
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRepositoryInterface;
 use JeanSebastienChristophe\CalendarBundle\Entity\Event;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -9,7 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Event>
  */
-class EventRepository extends ServiceEntityRepository
+class EventRepository extends ServiceEntityRepository implements CalendarEventRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -47,8 +48,8 @@ class EventRepository extends ServiceEntityRepository
      */
     public function findByDay(\DateTimeInterface $date): array
     {
-        $startOfDay = (clone $date)->setTime(0, 0, 0);
-        $endOfDay = (clone $date)->setTime(23, 59, 59);
+        $startOfDay = \DateTime::createFromInterface($date)->setTime(0, 0, 0);
+        $endOfDay = \DateTime::createFromInterface($date)->setTime(23, 59, 59);
 
         return $this->createQueryBuilder('e')
             ->where('e.startDate BETWEEN :start AND :end')
