@@ -26,6 +26,35 @@ class CalendarControllerTest extends TestCase
         $this->assertInstanceOf(CalendarController::class, $this->controller);
     }
 
+    /**
+     * Regression: a zero-padded month such as "05" is produced by the
+     * calendar_month route (requirement \d{2}). Symfony's argument resolver
+     * validates `int`-typed arguments with FILTER_VALIDATE_INT, which rejects
+     * leading zeros and yields a 404 for months 01-09. The month() action must
+     * therefore accept the route parameters as strings and cast them itself.
+     *
+     * @see https://www.php.net/filter_validate_int
+     */
+    public function testMonthActionAcceptsStringRouteParameters(): void
+    {
+        // Guard the resolver behaviour that caused the original 404.
+        $this->assertFalse(
+            filter_var('05', \FILTER_VALIDATE_INT),
+            'FILTER_VALIDATE_INT must reject zero-padded values; this is why month must be a string.'
+        );
+
+        $parameters = (new \ReflectionMethod($this->controller, 'month'))->getParameters();
+
+        $types = [];
+        foreach ($parameters as $parameter) {
+            $type = $parameter->getType();
+            $types[$parameter->getName()] = $type instanceof \ReflectionNamedType ? $type->getName() : null;
+        }
+
+        $this->assertSame('string', $types['year'] ?? null, 'month() $year must be typed string');
+        $this->assertSame('string', $types['month'] ?? null, 'month() $month must be typed string');
+    }
+
     public function testBuildCalendarGridReturnsCorrectStructure(): void
     {
         // Use reflection to test private method

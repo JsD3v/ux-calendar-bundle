@@ -70,7 +70,11 @@ php bin/console cache:clear
 
 Les assets CSS sont exposés via AssetMapper. Aucune commande `assets:install` n'est nécessaire.
 
-Le thème par défaut est `bootstrap`, pour rester cohérent avec EasyAdmin et les classes utilisées par les templates. Le bundle charge uniquement son CSS interne par défaut. Si vous voulez un rendu standalone sans Bootstrap déjà présent dans l'application, activez explicitement les CDN Bootstrap :
+Le thème par défaut est `bootstrap`, pour rester cohérent avec EasyAdmin et les classes utilisées par les templates. Le thème `bootstrap.css` se contente de mapper les variables `--bs-*` : **Bootstrap lui-même doit donc être chargé**, sinon les classes (`btn`, `container`, `alert`…) des templates ne sont pas stylées. Deux façons de le fournir :
+
+1. **Via l'AssetMapper de votre application (recommandé).** Les pages standalone du calendrier rendent automatiquement `importmap('app')` (voir la section Stimulus). Si votre `importmap.php` importe Bootstrap (par ex. `import 'bootstrap/dist/css/bootstrap.min.css'` dans `assets/app.js`), il est chargé sur `/events` sans rien d'autre à faire.
+
+2. **Via le CDN Bootstrap**, utile pour un rendu standalone quand l'application n'embarque pas Bootstrap :
 
 ```yaml
 calendar:
@@ -106,12 +110,27 @@ import { startStimulusApp } from '@symfony/stimulus-bundle';
 startStimulusApp();
 ```
 
-Chargez ensuite votre importmap dans le layout de l'application. Le layout du bundle ne charge pas `importmap('app')` automatiquement :
+Les pages standalone du calendrier (layout `@Calendar/calendar/base.html.twig`) rendent **automatiquement** l'entrypoint `importmap('app')`. C'est ce qui charge, sur `/events`, à la fois le contrôleur Stimulus `calendar` et les assets de votre application (dont Bootstrap s'il est dans votre `importmap.php`). Votre application doit donc disposer d'un entrypoint nommé `app` (le défaut Symfony).
+
+Si votre entrypoint porte un autre nom, surchargez le bloc `importmap` en créant `templates/bundles/CalendarBundle/calendar/base.html.twig` :
 
 ```twig
-{# templates/base.html.twig #}
-{% block javascripts %}
-    {{ importmap('app') }}
+{% extends '@Calendar/calendar/base.html.twig' %}
+
+{% block importmap %}
+    {{ importmap('mon_entrypoint') }}
+{% endblock %}
+```
+
+Pour intégrer le calendrier dans votre propre layout (au lieu de la page standalone), surchargez ce même template afin qu'il étende le layout de votre application :
+
+```twig
+{# templates/bundles/CalendarBundle/calendar/base.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ calendar_theme_css()|raw }}
+    {% block calendar_body %}{% endblock %}
 {% endblock %}
 ```
 
