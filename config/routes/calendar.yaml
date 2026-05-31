@@ -1,5 +1,9 @@
 # Calendar Bundle Routes
-# This file is automatically loaded by Symfony Flex
+# Import this resource from your application's config/routes.yaml; it is NOT
+# auto-loaded (the bundle ships no Symfony Flex recipe):
+#
+#     calendar_bundle:
+#         resource: '@CalendarBundle/config/routes/calendar.yaml'
 
 calendar_bundle:
     resource: '@CalendarBundle/src/Controller/'

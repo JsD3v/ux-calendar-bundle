@@ -36,7 +36,13 @@
     {# Optional framework CDN assets. Disabled by default. #}
     {{ calendar_framework_js()|raw }}
 
-    {% block importmap %}{% endblock %}
+    {# Renders the application's AssetMapper entrypoint so the bundle's Stimulus
+       controller AND the app's own assets (e.g. Bootstrap declared in
+       importmap.php) are loaded on the standalone calendar pages.
+       Override this block if your entrypoint is not named "app". #}
+    {% block importmap %}
+        {{ importmap('app') }}
+    {% endblock %}
 
     {% block calendar_javascripts %}{% endblock %}
 </body>
