@@ -3,6 +3,7 @@
 namespace JeanSebastienChristophe\CalendarBundle\Controller;
 
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventInterface;
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRangeRepositoryInterface;
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRepositoryInterface;
 use JeanSebastienChristophe\CalendarBundle\Form\EventType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,20 +15,21 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('%calendar.route_prefix%')]
 class CalendarController extends AbstractController
 {
+    /**
+     * @param array{enabled: string[], default: string} $views
+     */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly string $eventClass
+        private readonly string $eventClass,
+        private readonly array $views = ['enabled' => ['month'], 'default' => 'month'],
     ) {
     }
 
     #[Route('', name: 'calendar_index', methods: ['GET'])]
     public function index(): Response
     {
-        $now = new \DateTime();
-        return $this->redirectToRoute('calendar_month', [
-            'year' => $now->format('Y'),
-            'month' => $now->format('m'),
-        ]);
+        // Honour the configured default view (calendar.views.default).
+        return $this->redirectToView($this->normalizeView($this->views['default'] ?? 'month'), new \DateTime('today'));
     }
 
     #[Route('/{year}/{month}', name: 'calendar_month', requirements: ['year' => '\d{4}', 'month' => '\d{2}'], methods: ['GET'])]
@@ -39,32 +41,39 @@ class CalendarController extends AbstractController
         $year = (int) $year;
         $month = (int) $month;
 
-        // Validation du mois
         if ($month < 1 || $month > 12) {
             throw $this->createNotFoundException('Mois invalide');
         }
 
-        $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
+        return $this->render(
+            '@Calendar/calendar/index.html.twig',
+            $this->buildFrameContext('month', new \DateTime(sprintf('%d-%02d-01', $year, $month)))
+        );
+    }
 
-        // Récupérer les événements du mois
-        $repository = $this->eventRepository();
-        $events = $repository->findByMonth($year, $month);
+    #[Route('/week/{date}', name: 'calendar_week', requirements: ['date' => '\d{4}-\d{2}-\d{2}'], methods: ['GET'])]
+    public function week(string $date): Response
+    {
+        return $this->render(
+            '@Calendar/calendar/index.html.twig',
+            $this->buildFrameContext('week', $this->parseDate($date))
+        );
+    }
 
-        // Calcul des informations du calendrier
-        $calendarData = $this->buildCalendarGrid($year, $month, $events);
-
-        return $this->render('@Calendar/calendar/index.html.twig', [
-            'current_date' => $currentDate,
-            'year' => $year,
-            'month' => $month,
-            'calendar_data' => $calendarData,
-            'events' => $events,
-        ]);
+    #[Route('/day/{date}', name: 'calendar_day', requirements: ['date' => '\d{4}-\d{2}-\d{2}'], methods: ['GET'])]
+    public function day(string $date): Response
+    {
+        return $this->render(
+            '@Calendar/calendar/index.html.twig',
+            $this->buildFrameContext('day', $this->parseDate($date))
+        );
     }
 
     #[Route('/new', name: 'calendar_event_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        $view = $this->normalizeView((string) $request->query->get('view', 'month'));
+
         // Créer une instance de l'entité configurée
         $event = new ($this->eventClass)();
 
@@ -74,7 +83,7 @@ class CalendarController extends AbstractController
             );
         }
 
-        // Pré-remplir avec les paramètres de la requête (date cliquée)
+        // Pré-remplir avec les paramètres de la requête (date/heure cliquée)
         if ($request->query->has('date')) {
             try {
                 $date = new \DateTime($request->query->get('date'));
@@ -96,84 +105,54 @@ class CalendarController extends AbstractController
             $this->entityManager->persist($event);
             $this->entityManager->flush();
 
+            $eventDate = \DateTime::createFromInterface($event->getStartDate());
+
             // Si la requête vient de Turbo, on renvoie un Stream
             if ($this->isTurboStreamRequest($request)) {
-                $year = (int) $event->getStartDate()->format('Y');
-                $month = (int) $event->getStartDate()->format('m');
-
-                // Recharger les données du calendrier
-                $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
-                $repository = $this->eventRepository();
-                $events = $repository->findByMonth($year, $month);
-                $calendarData = $this->buildCalendarGrid($year, $month, $events);
-
-                $response = $this->render('@Calendar/calendar/stream/created.stream.html.twig', [
+                return $this->turboStream('@Calendar/calendar/stream/created.stream.html.twig', $view, $eventDate, [
                     'event' => $event,
-                    'year' => $year,
-                    'month' => $month,
-                    'current_date' => $currentDate,
-                    'calendar_data' => $calendarData,
-                    'events' => $events,
                 ]);
-                $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
-                return $response;
             }
 
             $this->addFlash('success', 'calendar.flash.created');
-            return $this->redirectToRoute('calendar_month', [
-                'year' => $event->getStartDate()->format('Y'),
-                'month' => $event->getStartDate()->format('m'),
-            ]);
+            return $this->redirectToView($view, $eventDate);
         }
 
         return $this->render('@Calendar/calendar/new.html.twig', [
             'event' => $event,
             'form' => $form,
+            'view' => $view,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'calendar_event_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, CalendarEventInterface $event): Response
     {
+        $view = $this->normalizeView((string) $request->query->get('view', 'month'));
+
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
 
+            $eventDate = \DateTime::createFromInterface($event->getStartDate());
+
             // Si la requête vient de Turbo, on renvoie un Stream
             if ($this->isTurboStreamRequest($request)) {
-                $year = (int) $event->getStartDate()->format('Y');
-                $month = (int) $event->getStartDate()->format('m');
-
-                // Recharger les données du calendrier
-                $currentDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
-                $repository = $this->eventRepository();
-                $events = $repository->findByMonth($year, $month);
-                $calendarData = $this->buildCalendarGrid($year, $month, $events);
-
-                $response = $this->render('@Calendar/calendar/stream/updated.stream.html.twig', [
+                return $this->turboStream('@Calendar/calendar/stream/updated.stream.html.twig', $view, $eventDate, [
                     'event' => $event,
-                    'year' => $year,
-                    'month' => $month,
-                    'current_date' => $currentDate,
-                    'calendar_data' => $calendarData,
-                    'events' => $events,
                 ]);
-                $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
-                return $response;
             }
 
             $this->addFlash('success', 'calendar.flash.updated');
-            return $this->redirectToRoute('calendar_month', [
-                'year' => $event->getStartDate()->format('Y'),
-                'month' => $event->getStartDate()->format('m'),
-            ]);
+            return $this->redirectToView($view, $eventDate);
         }
 
         return $this->render('@Calendar/calendar/edit.html.twig', [
             'event' => $event,
             'form' => $form,
+            'view' => $view,
         ]);
     }
 
@@ -207,10 +186,10 @@ class CalendarController extends AbstractController
         }
 
         $this->addFlash('success', 'calendar.flash.date_excluded');
-        return $this->redirectToRoute('calendar_month', [
-            'year' => $dateToExclude->format('Y'),
-            'month' => $dateToExclude->format('m'),
-        ]);
+        return $this->redirectToView(
+            $this->normalizeView((string) $request->query->get('view', 'month')),
+            $dateToExclude
+        );
     }
 
     #[Route('/{id}', name: 'calendar_event_delete', methods: ['POST', 'DELETE'])]
@@ -220,8 +199,7 @@ class CalendarController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$event->getId(), $request->request->get('_token'))) {
             // Sauvegarder les données avant suppression (car l'ID sera perdu après flush)
             $eventId = $event->getId();
-            $eventYear = $event->getStartDate()->format('Y');
-            $eventMonth = $event->getStartDate()->format('m');
+            $eventDate = \DateTime::createFromInterface($event->getStartDate());
 
             $this->entityManager->remove($event);
             $this->entityManager->flush();
@@ -237,11 +215,11 @@ class CalendarController extends AbstractController
 
             $this->addFlash('success', 'calendar.flash.deleted');
 
-            // Rediriger vers le mois de l'événement supprimé pour conserver le contexte
-            return $this->redirectToRoute('calendar_month', [
-                'year' => $eventYear,
-                'month' => $eventMonth,
-            ]);
+            // Rediriger vers la vue de l'événement supprimé pour conserver le contexte
+            return $this->redirectToView(
+                $this->normalizeView((string) $request->query->get('view', 'month')),
+                $eventDate
+            );
         }
 
         return $this->redirectToRoute('calendar_index');
@@ -253,6 +231,60 @@ class CalendarController extends AbstractController
     private function isTurboStreamRequest(Request $request): bool
     {
         return str_contains($request->headers->get('Accept', ''), 'text/vnd.turbo-stream.html');
+    }
+
+    /**
+     * Rend un Turbo Stream qui rafraîchit la frame du calendrier pour la vue
+     * et la date données (le template inclut `_calendar_frame.html.twig`).
+     *
+     * @param array<string, mixed> $extra
+     */
+    private function turboStream(string $template, string $view, \DateTime $date, array $extra = []): Response
+    {
+        $response = $this->render($template, $this->buildFrameContext($view, $date) + $extra);
+        $response->headers->set('Content-Type', 'text/vnd.turbo-stream.html');
+
+        return $response;
+    }
+
+    private function redirectToView(string $view, \DateTimeInterface $date): Response
+    {
+        return match ($view) {
+            'week' => $this->redirectToRoute('calendar_week', ['date' => $date->format('Y-m-d')]),
+            'day' => $this->redirectToRoute('calendar_day', ['date' => $date->format('Y-m-d')]),
+            default => $this->redirectToRoute('calendar_month', [
+                'year' => $date->format('Y'),
+                'month' => $date->format('m'),
+            ]),
+        };
+    }
+
+    /**
+     * Ramène une vue demandée à une vue activée, sinon la vue par défaut.
+     */
+    private function normalizeView(string $view): string
+    {
+        $enabled = $this->views['enabled'] ?? ['month'];
+
+        if (\in_array($view, $enabled, true)) {
+            return $view;
+        }
+
+        $default = $this->views['default'] ?? 'month';
+
+        return \in_array($default, $enabled, true) ? $default : ($enabled[0] ?? 'month');
+    }
+
+    private function parseDate(string $date): \DateTime
+    {
+        // "!" resets the time part to 00:00:00.
+        $parsed = \DateTime::createFromFormat('!Y-m-d', $date);
+
+        if ($parsed === false) {
+            throw $this->createNotFoundException('Date invalide');
+        }
+
+        return $parsed;
     }
 
     private function eventRepository(): CalendarEventRepositoryInterface
@@ -271,7 +303,212 @@ class CalendarController extends AbstractController
     }
 
     /**
-     * Construit la grille du calendrier avec les événements
+     * Récupère les événements chevauchant [start, end].
+     *
+     * Utilise findByDateRange() si le repository implémente la capacité
+     * optionnelle, sinon retombe sur findByMonth() pour chaque mois couvert
+     * (les repositories custom n'implémentant que l'interface de base
+     * continuent donc de fonctionner).
+     *
+     * @return CalendarEventInterface[]
+     */
+    private function findEventsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
+    {
+        $repository = $this->eventRepository();
+
+        if ($repository instanceof CalendarEventRangeRepositoryInterface) {
+            return $repository->findByDateRange($start, $end);
+        }
+
+        // Fallback : agréger les mois couverts puis dédupliquer par id.
+        // buildDayColumns() filtre ensuite au jour près, donc les événements
+        // hors plage récupérés par findByMonth() sont sans effet.
+        $cursor = new \DateTime($start->format('Y-m-01'));
+        $last = new \DateTime($end->format('Y-m-01'));
+        $byId = [];
+
+        while ($cursor <= $last) {
+            foreach ($repository->findByMonth((int) $cursor->format('Y'), (int) $cursor->format('m')) as $event) {
+                $byId[(int) $event->getId()] = $event;
+            }
+            $cursor->modify('+1 month');
+        }
+
+        return array_values($byId);
+    }
+
+    /**
+     * Construit le jeu de variables partagé par toutes les vues et leur frame.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildFrameContext(string $view, \DateTime $date): array
+    {
+        $view = $this->normalizeView($view);
+        $enabled = $this->views['enabled'] ?? ['month'];
+
+        $context = [
+            'current_view' => $view,
+            'current_date' => $date,
+            'enabled_views' => $enabled,
+            'nav' => $this->buildNav($view, $date),
+            'view_links' => $this->buildViewLinks($date),
+        ];
+
+        switch ($view) {
+            case 'week':
+                $start = (clone $date)->modify('monday this week')->setTime(0, 0, 0);
+                $end = (clone $start)->modify('+6 days')->setTime(23, 59, 59);
+                $events = $this->findEventsBetween($start, $end);
+
+                return $context + [
+                    'week_start' => $start,
+                    'week_end' => $end,
+                    'day_columns' => $this->buildDayColumns($this->daysBetween($start, $end), $events),
+                    'events' => $events,
+                ];
+
+            case 'day':
+                $start = (clone $date)->setTime(0, 0, 0);
+                $end = (clone $date)->setTime(23, 59, 59);
+                $events = $this->findEventsBetween($start, $end);
+
+                return $context + [
+                    'day_columns' => $this->buildDayColumns([(clone $date)->setTime(0, 0, 0)], $events),
+                    'events' => $events,
+                ];
+
+            default:
+                $year = (int) $date->format('Y');
+                $month = (int) $date->format('m');
+                $events = $this->eventRepository()->findByMonth($year, $month);
+
+                return $context + [
+                    'year' => $year,
+                    'month' => $month,
+                    'calendar_data' => $this->buildCalendarGrid($year, $month, $events),
+                    'events' => $events,
+                ];
+        }
+    }
+
+    /**
+     * @return array{prev: string, next: string, today: string}
+     */
+    private function buildNav(string $view, \DateTime $date): array
+    {
+        $today = new \DateTime('today');
+
+        return match ($view) {
+            'week' => [
+                'prev' => $this->generateUrl('calendar_week', ['date' => (clone $date)->modify('-7 days')->format('Y-m-d')]),
+                'next' => $this->generateUrl('calendar_week', ['date' => (clone $date)->modify('+7 days')->format('Y-m-d')]),
+                'today' => $this->generateUrl('calendar_week', ['date' => $today->format('Y-m-d')]),
+            ],
+            'day' => [
+                'prev' => $this->generateUrl('calendar_day', ['date' => (clone $date)->modify('-1 day')->format('Y-m-d')]),
+                'next' => $this->generateUrl('calendar_day', ['date' => (clone $date)->modify('+1 day')->format('Y-m-d')]),
+                'today' => $this->generateUrl('calendar_day', ['date' => $today->format('Y-m-d')]),
+            ],
+            default => [
+                'prev' => $this->generateUrl('calendar_month', $this->yearMonth((clone $date)->modify('first day of -1 month'))),
+                'next' => $this->generateUrl('calendar_month', $this->yearMonth((clone $date)->modify('first day of +1 month'))),
+                'today' => $this->generateUrl('calendar_month', $this->yearMonth($today)),
+            ],
+        };
+    }
+
+    /**
+     * @return array<string, string> view name => URL centred on $date
+     */
+    private function buildViewLinks(\DateTime $date): array
+    {
+        return [
+            'month' => $this->generateUrl('calendar_month', $this->yearMonth($date)),
+            'week' => $this->generateUrl('calendar_week', ['date' => $date->format('Y-m-d')]),
+            'day' => $this->generateUrl('calendar_day', ['date' => $date->format('Y-m-d')]),
+        ];
+    }
+
+    /**
+     * @return array{year: string, month: string}
+     */
+    private function yearMonth(\DateTimeInterface $date): array
+    {
+        return ['year' => $date->format('Y'), 'month' => $date->format('m')];
+    }
+
+    /**
+     * @return \DateTime[] one midnight DateTime per day in [start, end]
+     */
+    private function daysBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
+    {
+        $days = [];
+        $cursor = (clone \DateTime::createFromInterface($start))->setTime(0, 0, 0);
+        $last = (clone \DateTime::createFromInterface($end))->setTime(0, 0, 0);
+
+        while ($cursor <= $last) {
+            $days[] = clone $cursor;
+            $cursor->modify('+1 day');
+        }
+
+        return $days;
+    }
+
+    /**
+     * Construit les colonnes (jours) des vues semaine/jour, avec les événements
+     * répartis en "toute la journée" et par heure de début.
+     *
+     * @param \DateTime[] $days
+     * @param CalendarEventInterface[] $events
+     * @return array<int, array{date: \DateTime, is_today: bool, all_day: CalendarEventInterface[], hours: array<int, CalendarEventInterface[]>}>
+     */
+    private function buildDayColumns(array $days, array $events): array
+    {
+        $today = (new \DateTime())->format('Y-m-d');
+        $columns = [];
+
+        foreach ($days as $day) {
+            $dayStart = (clone $day)->setTime(0, 0, 0);
+            $dayEnd = (clone $day)->setTime(23, 59, 59);
+
+            $allDay = [];
+            $hours = array_fill(0, 24, []);
+
+            foreach ($events as $event) {
+                $start = $event->getStartDate();
+                $end = $event->getEndDate();
+
+                // L'événement chevauche-t-il ce jour ?
+                if ($end < $dayStart || $start > $dayEnd) {
+                    continue;
+                }
+
+                if ($event->isAllDay()) {
+                    $allDay[] = $event;
+                    continue;
+                }
+
+                // Si l'événement a commencé un jour précédent, on l'ancre à 0h.
+                $hour = $start < $dayStart ? 0 : (int) $start->format('G');
+                $hours[$hour][] = $event;
+            }
+
+            $columns[] = [
+                'date' => $day,
+                'is_today' => $day->format('Y-m-d') === $today,
+                'all_day' => $allDay,
+                'hours' => $hours,
+            ];
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Construit la grille du calendrier mensuel avec les événements
+     *
+     * @return array<int, array<int, array{date: \DateTime, day: int, events: CalendarEventInterface[], is_today: bool}|null>>
      */
     private function buildCalendarGrid(int $year, int $month, array $events): array
     {

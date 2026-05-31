@@ -16,7 +16,8 @@ Bundle calendrier léger pour Symfony 7.4 et 8, basé sur Turbo, Stimulus et Ass
 
 ## Fonctionnalités
 
-- Vue mensuelle responsive avec mises à jour Turbo Streams
+- Vues mois, semaine et jour avec sélecteur intégré et mises à jour Turbo Streams
+- Vues semaine et jour en grille horaire (créneaux 0h–23h) + ligne « toute la journée »
 - Création, édition, suppression et exclusion ponctuelle de dates
 - Entité `Event` prête à l'emploi
 - Contrats `CalendarEventInterface` et `CalendarEventRepositoryInterface` pour les entités personnalisées
@@ -53,7 +54,7 @@ calendar:
         include_cdn: false
     route_prefix: /calendar
     views:
-        enabled: [month]
+        enabled: [month, week, day]
         default: month
     features:
         all_day_events: true
@@ -142,8 +143,10 @@ Ouvrez ensuite `/events`, ou `/calendar` si vous avez configuré `route_prefix: 
 
 | Méthode | Route | Nom | Description |
 |---------|-------|-----|-------------|
-| GET | `{prefix}` | `calendar_index` | Redirige vers le mois courant |
+| GET | `{prefix}` | `calendar_index` | Redirige vers la vue par défaut (`views.default`) |
 | GET | `{prefix}/{year}/{month}` | `calendar_month` | Affiche le calendrier mensuel |
+| GET | `{prefix}/week/{date}` | `calendar_week` | Affiche la semaine contenant `{date}` (`Y-m-d`) |
+| GET | `{prefix}/day/{date}` | `calendar_day` | Affiche le jour `{date}` (`Y-m-d`) |
 | GET, POST | `{prefix}/new` | `calendar_event_new` | Affiche le formulaire et crée l'événement |
 | GET, POST | `{prefix}/{id}/edit` | `calendar_event_edit` | Affiche le formulaire et met à jour l'événement |
 | POST | `{prefix}/{id}/exclude/{date}` | `calendar_event_exclude_date` | Exclut une date pour un événement |
@@ -233,6 +236,35 @@ final class MyEventRepository extends ServiceEntityRepository implements Calenda
 }
 ```
 
+### Vues semaine et jour (interface optionnelle)
+
+Les vues semaine et jour fonctionnent sans rien ajouter : le contrôleur retombe sur `findByMonth()` pour les mois couverts. Pour une requête unique optimisée sur une plage arbitraire, implémentez en plus `CalendarEventRangeRepositoryInterface` :
+
+```php
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRangeRepositoryInterface;
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRepositoryInterface;
+
+final class MyEventRepository extends ServiceEntityRepository implements
+    CalendarEventRepositoryInterface,
+    CalendarEventRangeRepositoryInterface
+{
+    // ... findByMonth() ...
+
+    public function findByDateRange(\DateTimeInterface $start, \DateTimeInterface $end): array
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.startDate BETWEEN :start AND :end')
+            ->orWhere('e.endDate BETWEEN :start AND :end')
+            ->orWhere('e.startDate <= :start AND e.endDate >= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->orderBy('e.startDate', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+}
+```
+
 Configurez ensuite le bundle :
 
 ```yaml
@@ -288,8 +320,6 @@ composer test
 
 ## Roadmap
 
-- Vue semaine
-- Vue jour
 - Drag and drop pour déplacer les événements
 - Événements récurrents complets
 - Export iCal

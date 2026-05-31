@@ -8,6 +8,12 @@
       <trans-unit id="calendar.action.previous_month"><source>calendar.action.previous_month</source><target>Previous month</target></trans-unit>
       <trans-unit id="calendar.action.next_month"><source>calendar.action.next_month</source><target>Next month</target></trans-unit>
       <trans-unit id="calendar.action.today"><source>calendar.action.today</source><target>Today</target></trans-unit>
+      <trans-unit id="calendar.action.previous"><source>calendar.action.previous</source><target>Previous</target></trans-unit>
+      <trans-unit id="calendar.action.next"><source>calendar.action.next</source><target>Next</target></trans-unit>
+      <trans-unit id="calendar.view.switch"><source>calendar.view.switch</source><target>Switch view</target></trans-unit>
+      <trans-unit id="calendar.view.month"><source>calendar.view.month</source><target>Month</target></trans-unit>
+      <trans-unit id="calendar.view.week"><source>calendar.view.week</source><target>Week</target></trans-unit>
+      <trans-unit id="calendar.view.day"><source>calendar.view.day</source><target>Day</target></trans-unit>
       <trans-unit id="calendar.action.new_event"><source>calendar.action.new_event</source><target>New event</target></trans-unit>
       <trans-unit id="calendar.action.create_event"><source>calendar.action.create_event</source><target>Create event</target></trans-unit>
       <trans-unit id="calendar.action.create_on_date"><source>calendar.action.create_on_date</source><target>Create an event on %date%</target></trans-unit>

@@ -1,0 +1,181 @@
+{# Vue semaine / jour : axe horaire + colonnes de jours #}
+{% set cols = day_columns|length %}
+{% set gridCols = '60px repeat(' ~ cols ~ ', minmax(0, 1fr))' %}
+
+<div class="calendar-timegrid calendar-timegrid--{{ current_view }}">
+    {# En-tête : coin vide + nom/numéro de chaque jour #}
+    <div class="ctg-row ctg-head" style="grid-template-columns: {{ gridCols }};">
+        <div class="ctg-corner"></div>
+        {% for col in day_columns %}
+            <div class="ctg-dayhead {{ col.is_today ? 'ctg-today' : '' }}">
+                <a href="{{ path('calendar_day', {date: col.date|date('Y-m-d')}) }}" class="ctg-dayhead-link">
+                    <span class="ctg-dayname">{{ col.date|format_datetime(pattern='EEE') }}</span>
+                    <span class="ctg-daynum">{{ col.date|date('d') }}</span>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# Ligne "toute la journée" #}
+    <div class="ctg-row ctg-allday" style="grid-template-columns: {{ gridCols }};">
+        <div class="ctg-axis">{{ 'calendar.event.all_day'|trans({}, 'calendar') }}</div>
+        {% for col in day_columns %}
+            <div class="ctg-allday-cell {{ col.is_today ? 'ctg-today' : '' }}">
+                <div class="calendar-events" id="day-{{ col.date|date('Y-m-d') }}-allday">
+                    {% for event in col.all_day %}
+                        {% if not event.isExcludedDate(col.date) %}
+                            {% include '@Calendar/calendar/_event.html.twig' with {event: event, currentDate: col.date, current_view: current_view} %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# Grille horaire 0h → 23h #}
+    <div class="ctg-body">
+        {% for hour in 0..23 %}
+            <div class="ctg-row ctg-hour" style="grid-template-columns: {{ gridCols }};">
+                <div class="ctg-axis">{{ '%02d:00'|format(hour) }}</div>
+                {% for col in day_columns %}
+                    <div class="ctg-slot {{ col.is_today ? 'ctg-today' : '' }}"
+                         data-date="{{ col.date|date('Y-m-d') }}"
+                         data-hour="{{ hour }}">
+                        <a href="{{ path('calendar_event_new', {date: col.date|date('Y-m-d') ~ ' ' ~ '%02d:00'|format(hour), view: current_view}) }}"
+                           class="ctg-slot-add"
+                           data-turbo-frame="event-modal"
+                           title="{{ 'calendar.action.create_on_date'|trans({'%date%': col.date|format_date}, 'calendar') }}">
+                            <i class="bi bi-plus"></i>
+                        </a>
+                        <div class="calendar-events" id="day-{{ col.date|date('Y-m-d') }}-{{ hour }}">
+                            {% for event in col.hours[hour] %}
+                                {% if not event.isExcludedDate(col.date) %}
+                                    {% include '@Calendar/calendar/_event.html.twig' with {event: event, currentDate: col.date, current_view: current_view} %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.calendar-timegrid {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.calendar-timegrid .ctg-row {
+    display: grid;
+    align-items: stretch;
+}
+
+.calendar-timegrid .ctg-head {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.calendar-timegrid .ctg-corner {
+    border-right: 1px solid #dee2e6;
+}
+
+.calendar-timegrid .ctg-dayhead {
+    padding: 8px;
+    text-align: center;
+    border-right: 1px solid #dee2e6;
+}
+
+.calendar-timegrid .ctg-dayhead:last-child {
+    border-right: none;
+}
+
+.calendar-timegrid .ctg-dayhead-link {
+    text-decoration: none;
+    color: #495057;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.calendar-timegrid .ctg-dayname {
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.calendar-timegrid .ctg-daynum {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.calendar-timegrid .ctg-allday {
+    border-bottom: 1px solid #dee2e6;
+    min-height: 36px;
+}
+
+.calendar-timegrid .ctg-axis {
+    padding: 4px 6px;
+    font-size: 12px;
+    color: #6c757d;
+    text-align: right;
+    border-right: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.calendar-timegrid .ctg-allday-cell,
+.calendar-timegrid .ctg-slot {
+    border-right: 1px solid #f1f3f5;
+    padding: 2px;
+    position: relative;
+}
+
+.calendar-timegrid .ctg-allday-cell:last-child,
+.calendar-timegrid .ctg-slot:last-child {
+    border-right: none;
+}
+
+.calendar-timegrid .ctg-hour {
+    min-height: 48px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.calendar-timegrid .ctg-today {
+    background-color: #e7f3ff;
+}
+
+.calendar-timegrid .ctg-slot-add {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    opacity: 0;
+    color: #0d6efd;
+    text-decoration: none;
+    transition: opacity 0.15s;
+    line-height: 1;
+}
+
+.calendar-timegrid .ctg-slot:hover .ctg-slot-add {
+    opacity: 1;
+}
+
+.calendar-timegrid .calendar-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+@media (max-width: 768px) {
+    .calendar-timegrid .ctg-daynum {
+        font-size: 16px;
+    }
+    .calendar-timegrid .ctg-axis {
+        font-size: 10px;
+    }
+}
+</style>

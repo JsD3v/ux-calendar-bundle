@@ -1,5 +1,5 @@
 <div class="calendar-event-wrapper" data-event-id="{{ event.id }}" data-event-date="{{ currentDate|date('Y-m-d') }}">
-    <a href="{{ path('calendar_event_edit', {id: event.id}) }}"
+    <a href="{{ path('calendar_event_edit', {id: event.id, view: current_view|default('month')}) }}"
        class="calendar-event"
        id="event-{{ event.id }}"
        style="background-color: {{ event.color }}; border-left-color: {{ event.color }};"

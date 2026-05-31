@@ -1,36 +1,49 @@
-{# Turbo Frame pour le calendrier - inclut navigation et grille #}
+{# Turbo Frame pour le calendrier - navigation, sélecteur de vue et grille #}
+{% set current_view = current_view|default('month') %}
+{% set enabled_views = enabled_views|default(['month']) %}
 <turbo-frame id="calendar" data-turbo-action="advance">
-    {# Navigation du calendrier #}
+    {# Barre de navigation #}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-            <a href="{{ path('calendar_month', {
-                year: current_date|date_modify('-1 month')|date('Y'),
-                month: current_date|date_modify('-1 month')|date('m')
-            }) }}"
-               class="btn btn-outline-primary">
-                &larr; {{ 'calendar.action.previous_month'|trans({}, 'calendar') }}
+        <div class="btn-group" role="group">
+            <a href="{{ nav.prev }}" class="btn btn-outline-primary">
+                &larr; {{ 'calendar.action.previous'|trans({}, 'calendar') }}
             </a>
-
-            <a href="{{ path('calendar_index') }}"
-               class="btn btn-outline-secondary mx-2">
+            <a href="{{ nav.today }}" class="btn btn-outline-secondary">
                 {{ 'calendar.action.today'|trans({}, 'calendar') }}
             </a>
-
-            <a href="{{ path('calendar_month', {
-                year: current_date|date_modify('+1 month')|date('Y'),
-                month: current_date|date_modify('+1 month')|date('m')
-            }) }}"
-               class="btn btn-outline-primary">
-                {{ 'calendar.action.next_month'|trans({}, 'calendar') }} &rarr;
+            <a href="{{ nav.next }}" class="btn btn-outline-primary">
+                {{ 'calendar.action.next'|trans({}, 'calendar') }} &rarr;
             </a>
         </div>
 
         <div>
-            <h2 class="mb-0">{{ current_date|format_datetime(pattern='MMMM yyyy') }}</h2>
+            <h2 class="mb-0">
+                {%- if current_view == 'day' -%}
+                    {{ current_date|format_datetime(pattern='EEEE d MMMM yyyy') }}
+                {%- elseif current_view == 'week' -%}
+                    {{ week_start|format_date }} – {{ week_end|format_date }}
+                {%- else -%}
+                    {{ current_date|format_datetime(pattern='MMMM yyyy') }}
+                {%- endif -%}
+            </h2>
         </div>
 
-        <div>
-            <a href="{{ path('calendar_event_new') }}"
+        <div class="d-flex gap-2">
+            {# Sélecteur de vue (uniquement si plusieurs vues sont activées) #}
+            {% if enabled_views|length > 1 %}
+                <div class="btn-group" role="group" aria-label="{{ 'calendar.view.switch'|trans({}, 'calendar') }}">
+                    {% for v in ['month', 'week', 'day'] %}
+                        {% if v in enabled_views %}
+                            <a href="{{ view_links[v] }}"
+                               class="btn btn-sm {{ v == current_view ? 'btn-primary' : 'btn-outline-primary' }}">
+                                {{ ('calendar.view.' ~ v)|trans({}, 'calendar') }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <a href="{{ path('calendar_event_new', {view: current_view, date: current_date|date('Y-m-d')}) }}"
                class="btn btn-success"
                data-turbo-frame="event-modal">
                 <i class="bi bi-plus-lg"></i> {{ 'calendar.action.new_event'|trans({}, 'calendar') }}
@@ -38,5 +51,9 @@
         </div>
     </div>
 
-    {% include '@Calendar/calendar/_grid.html.twig' %}
+    {% if current_view in ['week', 'day'] %}
+        {% include '@Calendar/calendar/_timegrid.html.twig' %}
+    {% else %}
+        {% include '@Calendar/calendar/_grid.html.twig' %}
+    {% endif %}
 </turbo-frame>

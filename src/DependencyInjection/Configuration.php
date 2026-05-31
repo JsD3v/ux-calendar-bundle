@@ -39,7 +39,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->arrayNode('enabled')
-                            ->defaultValue(['month'])
+                            ->defaultValue(['month', 'week', 'day'])
                             ->scalarPrototype()->end()
                             ->info('Enabled calendar views (month, week, day)')
                         ->end()
