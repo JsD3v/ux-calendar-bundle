@@ -31,8 +31,14 @@ class CalendarController extends AbstractController
     }
 
     #[Route('/{year}/{month}', name: 'calendar_month', requirements: ['year' => '\d{4}', 'month' => '\d{2}'], methods: ['GET'])]
-    public function month(int $year, int $month): Response
+    public function month(string $year, string $month): Response
     {
+        // The route enforces digits via requirements; cast here because a
+        // zero-padded month like "05" is rejected by FILTER_VALIDATE_INT
+        // when the argument is typed `int`.
+        $year = (int) $year;
+        $month = (int) $month;
+
         // Validation du mois
         if ($month < 1 || $month > 12) {
             throw $this->createNotFoundException('Mois invalide');

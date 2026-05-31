@@ -1,5 +1,12 @@
 # Calendar Bundle Configuration
-# This file is automatically loaded by Symfony Flex
+# Reference/default configuration shipped with the bundle.
+# It is NOT auto-loaded into your application. Generate your own
+# config/packages/calendar.yaml by running:
+#
+#     php bin/console ux-calendar:install
+#
+# All values below are optional and fall back to the bundle defaults
+# defined in Configuration.php.
 
 calendar:
     theme: bootstrap

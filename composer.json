@@ -1,6 +1,6 @@
 {
     "name": "jean-sebastien-christophe/ux-calendar-bundle",
-    "description": "A modern calendar bundle for Symfony 7.4/8 with Turbo and Stimulus - no third-party libraries",
+    "description": "A modern calendar bundle for Symfony 7.4/8 with Turbo and Stimulus, without FullCalendar",
     "type": "symfony-bundle",
     "license": "MIT",
     "keywords": ["symfony", "calendar", "turbo", "stimulus", "hotwire", "event"],
