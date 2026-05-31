@@ -8,7 +8,7 @@ Bundle calendrier léger pour Symfony 7.4 et 8, basé sur Turbo, Stimulus et Ass
 ## Compatibilité
 
 - PHP >= 8.2
-- Symfony FrameworkBundle, Form, Validator, TwigBundle et AssetMapper `^7.4|^8.0`
+- Symfony FrameworkBundle, Form, Validator, TwigBundle, Console, Translation et AssetMapper `^7.4|^8.0`
 - Symfony UX Turbo et Stimulus Bundle `^2.0|^3.0`
 - Doctrine ORM `^2.0|^3.0` et DoctrineBundle `^2.0|^3.0`
 - EasyAdmin `^4.0|^5.0` optionnel pour l'admin
@@ -30,7 +30,7 @@ Bundle calendrier léger pour Symfony 7.4 et 8, basé sur Turbo, Stimulus et Ass
 composer require jean-sebastien-christophe/ux-calendar-bundle
 ```
 
-Avec Symfony Flex, les bundles Symfony requis sont généralement activés automatiquement. Sinon, ajoutez le bundle dans `config/bundles.php` :
+Ajoutez le bundle dans `config/bundles.php` :
 
 ```php
 JeanSebastienChristophe\CalendarBundle\CalendarBundle::class => ['all' => true],
@@ -106,7 +106,14 @@ import { startStimulusApp } from '@symfony/stimulus-bundle';
 startStimulusApp();
 ```
 
-Chargez ensuite votre importmap dans le layout de l'application. Le layout du bundle ne charge pas `importmap('app')` automatiquement.
+Chargez ensuite votre importmap dans le layout de l'application. Le layout du bundle ne charge pas `importmap('app')` automatiquement :
+
+```twig
+{# templates/base.html.twig #}
+{% block javascripts %}
+    {{ importmap('app') }}
+{% endblock %}
+```
 
 Ouvrez ensuite `/events`, ou `/calendar` si vous avez configuré `route_prefix: /calendar`.
 
