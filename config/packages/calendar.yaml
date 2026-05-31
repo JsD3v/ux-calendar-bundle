@@ -14,7 +14,7 @@ calendar:
         include_cdn: false
     route_prefix: /calendar
     views:
-        enabled: [month]
+        enabled: [month, week, day]
         default: month
     features:
         all_day_events: true

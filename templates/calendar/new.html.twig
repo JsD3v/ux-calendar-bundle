@@ -16,7 +16,7 @@
                 </div>
                 
                 {{ form_start(form, {
-                    'action': path('calendar_event_new'),
+                    'action': path('calendar_event_new', {view: view|default('month')}),
                     'attr': {
                         'data-turbo': 'true',
                         'data-turbo-frame': 'event-modal'

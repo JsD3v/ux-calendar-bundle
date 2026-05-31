@@ -55,6 +55,68 @@ class CalendarControllerTest extends TestCase
         $this->assertSame('string', $types['month'] ?? null, 'month() $month must be typed string');
     }
 
+    /**
+     * The week/day routes use a date param (\d{4}-\d{2}-\d{2}); like month()
+     * the controller must take it as a string to avoid scalar coercion issues.
+     */
+    public function testWeekAndDayActionsAcceptStringDateParameters(): void
+    {
+        foreach (['week', 'day'] as $action) {
+            $parameter = (new \ReflectionMethod($this->controller, $action))->getParameters()[0];
+            $type = $parameter->getType();
+
+            $this->assertInstanceOf(\ReflectionNamedType::class, $type);
+            $this->assertSame('string', $type->getName(), $action . '() $date must be typed string');
+            $this->assertSame('date', $parameter->getName());
+        }
+    }
+
+    public function testBuildDayColumnsSeparatesAllDayAndHourlyEvents(): void
+    {
+        $method = (new \ReflectionClass($this->controller))->getMethod('buildDayColumns');
+
+        $timed = (new Event())
+            ->setTitle('Réunion')
+            ->setStartDate(new \DateTime('2025-01-15 14:30:00'))
+            ->setEndDate(new \DateTime('2025-01-15 15:30:00'))
+            ->setAllDay(false);
+
+        $allDay = (new Event())
+            ->setTitle('Congé')
+            ->setStartDate(new \DateTime('2025-01-15 00:00:00'))
+            ->setEndDate(new \DateTime('2025-01-15 23:59:59'))
+            ->setAllDay(true);
+
+        $days = [new \DateTime('2025-01-15 00:00:00')];
+        $columns = $method->invokeArgs($this->controller, [$days, [$timed, $allDay]]);
+
+        $this->assertCount(1, $columns);
+        $column = $columns[0];
+
+        // L'événement horaire est rangé sur sa tranche de début (14h).
+        $this->assertSame([$timed], $column['hours'][14]);
+        $this->assertSame([], $column['hours'][13]);
+        // L'événement "toute la journée" est isolé.
+        $this->assertSame([$allDay], $column['all_day']);
+    }
+
+    public function testBuildDayColumnsAnchorsEventStartedBeforeTheDayAtMidnight(): void
+    {
+        $method = (new \ReflectionClass($this->controller))->getMethod('buildDayColumns');
+
+        $spanning = (new Event())
+            ->setTitle('Conférence')
+            ->setStartDate(new \DateTime('2025-01-14 18:00:00'))
+            ->setEndDate(new \DateTime('2025-01-15 10:00:00'))
+            ->setAllDay(false);
+
+        $days = [new \DateTime('2025-01-15 00:00:00')];
+        $columns = $method->invokeArgs($this->controller, [$days, [$spanning]]);
+
+        // Démarré la veille : ancré à 0h sur le jour courant.
+        $this->assertSame([$spanning], $columns[0]['hours'][0]);
+    }
+
     public function testBuildCalendarGridReturnsCorrectStructure(): void
     {
         // Use reflection to test private method

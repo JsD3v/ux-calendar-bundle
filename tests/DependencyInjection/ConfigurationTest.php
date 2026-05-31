@@ -30,7 +30,7 @@ class ConfigurationTest extends TestCase
         $this->assertEquals(Event::class, $config['event_class']);
         $this->assertEquals('bootstrap', $config['theme']);
         $this->assertFalse($config['assets']['include_cdn']);
-        $this->assertEquals(['month'], $config['views']['enabled']);
+        $this->assertEquals(['month', 'week', 'day'], $config['views']['enabled']);
         $this->assertEquals('month', $config['views']['default']);
         $this->assertTrue($config['features']['all_day_events']);
         $this->assertTrue($config['features']['colors']);

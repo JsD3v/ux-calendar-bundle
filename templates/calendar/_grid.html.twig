@@ -28,7 +28,7 @@
                          data-date="{{ cell.date|date('Y-m-d') }}">
 
                         <div class="calendar-day-number">
-                            <a href="{{ path('calendar_event_new', {date: cell.date|date('Y-m-d')}) }}"
+                            <a href="{{ path('calendar_event_new', {date: cell.date|date('Y-m-d'), view: current_view|default('month')}) }}"
                                class="calendar-day-link"
                                data-turbo-frame="event-modal"
                                title="{{ 'calendar.action.create_on_date'|trans({'%date%': cell.date|format_date}, 'calendar') }}">
@@ -41,7 +41,7 @@
                             {% for event in cell.events %}
                                 {# Ne pas afficher si cette date est exclue #}
                                 {% if not event.isExcludedDate(cell.date) %}
-                                    {% include '@Calendar/calendar/_event.html.twig' with {event: event, currentDate: cell.date} %}
+                                    {% include '@Calendar/calendar/_event.html.twig' with {event: event, currentDate: cell.date, current_view: current_view|default('month')} %}
                                 {% endif %}
                             {% endfor %}
                         </div>

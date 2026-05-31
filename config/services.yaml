@@ -9,6 +9,7 @@ services:
         tags: ['controller.service_arguments']
         bind:
             $eventClass: '%calendar.event_class%'
+            $views: '%calendar.views%'
 
     # Commands
     JeanSebastienChristophe\CalendarBundle\Command\:

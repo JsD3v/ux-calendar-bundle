@@ -16,7 +16,7 @@
                 </div>
 
                 {{ form_start(form, {
-                    'action': path('calendar_event_edit', {id: event.id}),
+                    'action': path('calendar_event_edit', {id: event.id, view: view|default('month')}),
                     'attr': {
                         'data-turbo': 'true',
                         'data-turbo-frame': 'event-modal'
@@ -59,7 +59,7 @@
 
                 {# Delete form - outside the update form to avoid nesting #}
                 <form method="post"
-                      action="{{ path('calendar_event_delete', {id: event.id}) }}"
+                      action="{{ path('calendar_event_delete', {id: event.id, view: view|default('month')}) }}"
                       onsubmit="return confirm('{{ 'calendar.confirm.delete'|trans({}, 'calendar')|e('js') }}');"
                       class="position-absolute bottom-0 start-0 p-3"
                       data-turbo="true"

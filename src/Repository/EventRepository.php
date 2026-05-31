@@ -2,6 +2,7 @@
 
 namespace JeanSebastienChristophe\CalendarBundle\Repository;
 
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRangeRepositoryInterface;
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRepositoryInterface;
 use JeanSebastienChristophe\CalendarBundle\Entity\Event;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -10,7 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Event>
  */
-class EventRepository extends ServiceEntityRepository implements CalendarEventRepositoryInterface
+class EventRepository extends ServiceEntityRepository implements CalendarEventRepositoryInterface, CalendarEventRangeRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -29,15 +30,7 @@ class EventRepository extends ServiceEntityRepository implements CalendarEventRe
         $startDate = new \DateTime(sprintf('%d-%02d-01 00:00:00', $year, $month));
         $endDate = (clone $startDate)->modify('last day of this month')->setTime(23, 59, 59);
 
-        return $this->createQueryBuilder('e')
-            ->where('e.startDate BETWEEN :start AND :end')
-            ->orWhere('e.endDate BETWEEN :start AND :end')
-            ->orWhere('e.startDate <= :start AND e.endDate >= :end')
-            ->setParameter('start', $startDate)
-            ->setParameter('end', $endDate)
-            ->orderBy('e.startDate', 'ASC')
-            ->getQuery()
-            ->getResult();
+        return $this->findByDateRange($startDate, $endDate);
     }
 
     /**
@@ -51,12 +44,22 @@ class EventRepository extends ServiceEntityRepository implements CalendarEventRe
         $startOfDay = \DateTime::createFromInterface($date)->setTime(0, 0, 0);
         $endOfDay = \DateTime::createFromInterface($date)->setTime(23, 59, 59);
 
+        return $this->findByDateRange($startOfDay, $endOfDay);
+    }
+
+    /**
+     * Récupère tous les événements chevauchant la plage [start, end]
+     *
+     * @return Event[]
+     */
+    public function findByDateRange(\DateTimeInterface $start, \DateTimeInterface $end): array
+    {
         return $this->createQueryBuilder('e')
             ->where('e.startDate BETWEEN :start AND :end')
             ->orWhere('e.endDate BETWEEN :start AND :end')
             ->orWhere('e.startDate <= :start AND e.endDate >= :end')
-            ->setParameter('start', $startOfDay)
-            ->setParameter('end', $endOfDay)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
             ->orderBy('e.startDate', 'ASC')
             ->getQuery()
             ->getResult();
