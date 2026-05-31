@@ -115,6 +115,27 @@ $today = new \DateTime();
 $events = $eventRepository->findByDay($today);
 ```
 
+## Thèmes et assets
+
+Le thème par défaut est `bootstrap`, ce qui correspond aux templates fournis et à l'intégration EasyAdmin. Le bundle ne charge aucun CDN tiers par défaut : il expose seulement son CSS via AssetMapper.
+
+```yaml
+calendar:
+    theme: bootstrap
+    assets:
+        include_cdn: false
+```
+
+Si votre application ne charge pas déjà Bootstrap, vous pouvez activer les CDN Bootstrap explicitement :
+
+```yaml
+calendar:
+    assets:
+        include_cdn: true
+```
+
+Les valeurs possibles pour `theme` sont `bootstrap`, `tailwind`, `default` et `auto`.
+
 ### Requête personnalisée
 
 ```php
@@ -254,10 +275,18 @@ class CustomEventRepository extends ServiceEntityRepository implements CalendarE
 
 ### Configurer le bundle
 
+La commande d'installation peut écrire ou mettre à jour `config/packages/calendar.yaml` :
+
+```bash
+php bin/console ux-calendar:install --event-class='App\Entity\CustomEvent'
+```
+
 ```yaml
 calendar:
     event_class: App\Entity\CustomEvent
 ```
+
+Cette classe doit exister, implémenter `CalendarEventInterface` et être instanciable sans argument obligatoire, car le contrôleur du bundle crée une nouvelle instance dans l'action de création.
 
 ## Événements Symfony (Event Dispatcher)
 

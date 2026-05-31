@@ -9,19 +9,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 trait CalendarEventTrait
 {
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Le titre est obligatoire')]
+    #[Assert\NotBlank(message: 'calendar.validation.title_required')]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: 'La date de début est obligatoire')]
+    #[Assert\NotNull(message: 'calendar.validation.start_date_required')]
     private ?\DateTimeInterface $startDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: 'La date de fin est obligatoire')]
+    #[Assert\NotNull(message: 'calendar.validation.end_date_required')]
     #[Assert\Expression(
         "this.getEndDate() >= this.getStartDate()",
-        message: 'La date de fin doit être après la date de début'
+        message: 'calendar.validation.end_date_after_start'
     )]
     private ?\DateTimeInterface $endDate = null;
 
@@ -34,7 +34,7 @@ trait CalendarEventTrait
     #[ORM\Column(length: 7, nullable: true)]
     #[Assert\Regex(
         pattern: '/^#[0-9A-Fa-f]{6}$/',
-        message: 'La couleur doit être au format hexadécimal (#RRGGBB)'
+        message: 'calendar.validation.color_hex'
     )]
     private ?string $color = '#3788d8';
 

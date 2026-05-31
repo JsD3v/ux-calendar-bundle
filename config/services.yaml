@@ -10,6 +10,13 @@ services:
         bind:
             $eventClass: '%calendar.event_class%'
 
+    # Commands
+    JeanSebastienChristophe\CalendarBundle\Command\:
+        resource: '../src/Command/'
+        bind:
+            $projectDir: '%kernel.project_dir%'
+            $configuredEventClass: '%calendar.event_class%'
+
     # Value Resolver
     JeanSebastienChristophe\CalendarBundle\ValueResolver\EventValueResolver:
         arguments:
@@ -27,6 +34,8 @@ services:
     JeanSebastienChristophe\CalendarBundle\Form\:
         resource: '../src/Form/'
         tags: ['form.type']
+        bind:
+            $eventClass: '%calendar.event_class%'
 
     # Services
     JeanSebastienChristophe\CalendarBundle\Service\ThemeDetector:
@@ -39,5 +48,6 @@ services:
         arguments:
             $themeDetector: '@JeanSebastienChristophe\CalendarBundle\Service\ThemeDetector'
             $configuredTheme: '%calendar.theme%'
+            $includeCdnAssets: '%calendar.assets.include_cdn%'
             $assetMapper: '@Symfony\Component\AssetMapper\AssetMapperInterface'
         tags: ['twig.extension']

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="fr" datatype="plaintext" original="calendar">
+    <body>
+      <trans-unit id="calendar.title"><source>calendar.title</source><target>Calendrier</target></trans-unit>
+      <trans-unit id="calendar.new.title"><source>calendar.new.title</source><target>Nouvel événement</target></trans-unit>
+      <trans-unit id="calendar.edit.title"><source>calendar.edit.title</source><target>Modifier l'événement</target></trans-unit>
+      <trans-unit id="calendar.action.previous_month"><source>calendar.action.previous_month</source><target>Mois précédent</target></trans-unit>
+      <trans-unit id="calendar.action.next_month"><source>calendar.action.next_month</source><target>Mois suivant</target></trans-unit>
+      <trans-unit id="calendar.action.today"><source>calendar.action.today</source><target>Aujourd'hui</target></trans-unit>
+      <trans-unit id="calendar.action.new_event"><source>calendar.action.new_event</source><target>Nouvel événement</target></trans-unit>
+      <trans-unit id="calendar.action.create_event"><source>calendar.action.create_event</source><target>Créer l'événement</target></trans-unit>
+      <trans-unit id="calendar.action.create_on_date"><source>calendar.action.create_on_date</source><target>Créer un événement le %date%</target></trans-unit>
+      <trans-unit id="calendar.action.cancel"><source>calendar.action.cancel</source><target>Annuler</target></trans-unit>
+      <trans-unit id="calendar.action.save"><source>calendar.action.save</source><target>Enregistrer</target></trans-unit>
+      <trans-unit id="calendar.action.delete"><source>calendar.action.delete</source><target>Supprimer</target></trans-unit>
+      <trans-unit id="calendar.action.close"><source>calendar.action.close</source><target>Fermer</target></trans-unit>
+      <trans-unit id="calendar.action.exclude_date"><source>calendar.action.exclude_date</source><target>Supprimer pour ce jour uniquement</target></trans-unit>
+      <trans-unit id="calendar.confirm.delete"><source>calendar.confirm.delete</source><target>Êtes-vous sûr de vouloir supprimer cet événement ?</target></trans-unit>
+      <trans-unit id="calendar.confirm.exclude_date"><source>calendar.confirm.exclude_date</source><target>Supprimer cet événement pour le %date% uniquement ?</target></trans-unit>
+      <trans-unit id="calendar.event.all_day"><source>calendar.event.all_day</source><target>Journée entière</target></trans-unit>
+      <trans-unit id="calendar.weekday.monday"><source>calendar.weekday.monday</source><target>Lundi</target></trans-unit>
+      <trans-unit id="calendar.weekday.tuesday"><source>calendar.weekday.tuesday</source><target>Mardi</target></trans-unit>
+      <trans-unit id="calendar.weekday.wednesday"><source>calendar.weekday.wednesday</source><target>Mercredi</target></trans-unit>
+      <trans-unit id="calendar.weekday.thursday"><source>calendar.weekday.thursday</source><target>Jeudi</target></trans-unit>
+      <trans-unit id="calendar.weekday.friday"><source>calendar.weekday.friday</source><target>Vendredi</target></trans-unit>
+      <trans-unit id="calendar.weekday.saturday"><source>calendar.weekday.saturday</source><target>Samedi</target></trans-unit>
+      <trans-unit id="calendar.weekday.sunday"><source>calendar.weekday.sunday</source><target>Dimanche</target></trans-unit>
+      <trans-unit id="calendar.form.title"><source>calendar.form.title</source><target>Titre</target></trans-unit>
+      <trans-unit id="calendar.form.title_placeholder"><source>calendar.form.title_placeholder</source><target>Ex: Réunion d'équipe</target></trans-unit>
+      <trans-unit id="calendar.form.start_date"><source>calendar.form.start_date</source><target>Date de début</target></trans-unit>
+      <trans-unit id="calendar.form.end_date"><source>calendar.form.end_date</source><target>Date de fin</target></trans-unit>
+      <trans-unit id="calendar.form.all_day"><source>calendar.form.all_day</source><target>Journée entière</target></trans-unit>
+      <trans-unit id="calendar.form.description"><source>calendar.form.description</source><target>Description</target></trans-unit>
+      <trans-unit id="calendar.form.description_placeholder"><source>calendar.form.description_placeholder</source><target>Description de l'événement...</target></trans-unit>
+      <trans-unit id="calendar.form.color"><source>calendar.form.color</source><target>Couleur</target></trans-unit>
+      <trans-unit id="calendar.flash.created"><source>calendar.flash.created</source><target>Événement créé avec succès.</target></trans-unit>
+      <trans-unit id="calendar.flash.saving"><source>calendar.flash.saving</source><target>Enregistrement en cours...</target></trans-unit>
+      <trans-unit id="calendar.flash.updated"><source>calendar.flash.updated</source><target>Événement modifié avec succès.</target></trans-unit>
+      <trans-unit id="calendar.flash.deleted"><source>calendar.flash.deleted</source><target>Événement supprimé avec succès.</target></trans-unit>
+      <trans-unit id="calendar.flash.date_excluded"><source>calendar.flash.date_excluded</source><target>Événement supprimé pour cette date.</target></trans-unit>
+      <trans-unit id="calendar.flash.invalid_date"><source>calendar.flash.invalid_date</source><target>La date fournie est invalide, utilisation de la date du jour.</target></trans-unit>
+      <trans-unit id="calendar.error.loading"><source>calendar.error.loading</source><target>Erreur de chargement. Veuillez réessayer.</target></trans-unit>
+      <trans-unit id="calendar.error.network"><source>calendar.error.network</source><target>Erreur de connexion. Vérifiez votre réseau.</target></trans-unit>
+    </body>
+  </file>
+</xliff>

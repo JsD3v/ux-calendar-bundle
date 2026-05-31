@@ -3,6 +3,8 @@
 namespace JeanSebastienChristophe\CalendarBundle\Tests\DependencyInjection;
 
 use JeanSebastienChristophe\CalendarBundle\DependencyInjection\CalendarExtension;
+use JeanSebastienChristophe\CalendarBundle\Tests\Fixtures\CustomEvent;
+use JeanSebastienChristophe\CalendarBundle\Tests\Fixtures\EventWithRequiredConstructor;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -31,7 +33,7 @@ class CalendarExtensionTest extends TestCase
     public function testLoadSetsDefaultRoutePrefix(): void
     {
         // Skip this test if AssetMapper is not available
-        if (!class_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
             $this->markTestSkipped('AssetMapper not available');
         }
 
@@ -43,7 +45,7 @@ class CalendarExtensionTest extends TestCase
 
     public function testLoadSetsCustomRoutePrefix(): void
     {
-        if (!class_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
             $this->markTestSkipped('AssetMapper not available');
         }
 
@@ -54,9 +56,70 @@ class CalendarExtensionTest extends TestCase
         $this->assertEquals('/calendar', $this->container->getParameter('calendar.route_prefix'));
     }
 
+    public function testLoadSetsCustomEventClass(): void
+    {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+            $this->markTestSkipped('AssetMapper not available');
+        }
+
+        $this->extension->load([
+            ['event_class' => CustomEvent::class]
+        ], $this->container);
+
+        $this->assertEquals(CustomEvent::class, $this->container->getParameter('calendar.event_class'));
+    }
+
+    public function testLoadSetsThemeAndAssetsParameters(): void
+    {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+            $this->markTestSkipped('AssetMapper not available');
+        }
+
+        $this->extension->load([
+            [
+                'theme' => 'bootstrap',
+                'assets' => [
+                    'include_cdn' => true,
+                ],
+            ]
+        ], $this->container);
+
+        $this->assertEquals('bootstrap', $this->container->getParameter('calendar.theme'));
+        $this->assertEquals(['include_cdn' => true], $this->container->getParameter('calendar.assets'));
+        $this->assertTrue($this->container->getParameter('calendar.assets.include_cdn'));
+    }
+
+    public function testLoadRejectsEventClassWithoutInterface(): void
+    {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+            $this->markTestSkipped('AssetMapper not available');
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('must implement');
+
+        $this->extension->load([
+            ['event_class' => \stdClass::class]
+        ], $this->container);
+    }
+
+    public function testLoadRejectsEventClassWithRequiredConstructorArguments(): void
+    {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+            $this->markTestSkipped('AssetMapper not available');
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('must have no required constructor arguments');
+
+        $this->extension->load([
+            ['event_class' => EventWithRequiredConstructor::class]
+        ], $this->container);
+    }
+
     public function testLoadSetsViewsParameter(): void
     {
-        if (!class_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
             $this->markTestSkipped('AssetMapper not available');
         }
 
@@ -71,7 +134,7 @@ class CalendarExtensionTest extends TestCase
 
     public function testLoadSetsFeaturesParameter(): void
     {
-        if (!class_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
             $this->markTestSkipped('AssetMapper not available');
         }
 
@@ -86,7 +149,7 @@ class CalendarExtensionTest extends TestCase
 
     public function testLoadWithCustomConfiguration(): void
     {
-        if (!class_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
             $this->markTestSkipped('AssetMapper not available');
         }
 
@@ -158,7 +221,6 @@ class CalendarExtensionTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->extension);
         $method = $reflection->getMethod('getBundleName');
-        $method->setAccessible(true);
 
         $result = $method->invokeArgs($this->extension, ['Symfony\UX\Turbo\TurboBundle']);
         $this->assertEquals('TurboBundle', $result);
@@ -171,7 +233,6 @@ class CalendarExtensionTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->extension);
         $method = $reflection->getMethod('throwMissingBundlesException');
-        $method->setAccessible(true);
 
         $missingBundles = [
             [

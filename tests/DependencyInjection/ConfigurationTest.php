@@ -3,6 +3,8 @@
 namespace JeanSebastienChristophe\CalendarBundle\Tests\DependencyInjection;
 
 use JeanSebastienChristophe\CalendarBundle\DependencyInjection\Configuration;
+use JeanSebastienChristophe\CalendarBundle\Entity\Event;
+use JeanSebastienChristophe\CalendarBundle\Tests\Fixtures\CustomEvent;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 
@@ -25,10 +27,49 @@ class ConfigurationTest extends TestCase
         );
 
         $this->assertEquals('/events', $config['route_prefix']);
+        $this->assertEquals(Event::class, $config['event_class']);
+        $this->assertEquals('bootstrap', $config['theme']);
+        $this->assertFalse($config['assets']['include_cdn']);
         $this->assertEquals(['month'], $config['views']['enabled']);
         $this->assertEquals('month', $config['views']['default']);
         $this->assertTrue($config['features']['all_day_events']);
         $this->assertTrue($config['features']['colors']);
+    }
+
+    public function testCustomEventClass(): void
+    {
+        $config = $this->processor->processConfiguration(
+            $this->configuration,
+            [
+                ['event_class' => CustomEvent::class]
+            ]
+        );
+
+        $this->assertEquals(CustomEvent::class, $config['event_class']);
+    }
+
+    public function testCustomTheme(): void
+    {
+        $config = $this->processor->processConfiguration(
+            $this->configuration,
+            [
+                ['theme' => 'tailwind']
+            ]
+        );
+
+        $this->assertEquals('tailwind', $config['theme']);
+    }
+
+    public function testIncludeCdnAssets(): void
+    {
+        $config = $this->processor->processConfiguration(
+            $this->configuration,
+            [
+                ['assets' => ['include_cdn' => true]]
+            ]
+        );
+
+        $this->assertTrue($config['assets']['include_cdn']);
     }
 
     public function testCustomRoutePrefix(): void

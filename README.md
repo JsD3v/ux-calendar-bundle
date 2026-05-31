@@ -1,9 +1,9 @@
 # CalendarBundle pour Symfony 7.4 / 8
 
-[![CI - Tests PHP 8.4](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml/badge.svg)](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml)
+[![Tests](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml/badge.svg)](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml)
 [![PHPStan](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/phpstan.yml/badge.svg)](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/phpstan.yml)
 
-Bundle calendrier léger pour Symfony 7.4 et 8, basé sur Turbo, Stimulus et AssetMapper. Il fournit une vue mensuelle, des formulaires de gestion d'événements et des helpers EasyAdmin, sans dépendance JavaScript lourde de type FullCalendar.
+Bundle calendrier léger pour Symfony 7.4 et 8, basé sur Turbo, Stimulus et AssetMapper. Il fournit une vue mensuelle, des formulaires de gestion d'événements et des helpers EasyAdmin, sans dépendance JavaScript lourde de type FullCalendar. Les CDN tiers ne sont pas chargés par défaut.
 
 ## Compatibilité
 
@@ -21,7 +21,7 @@ Bundle calendrier léger pour Symfony 7.4 et 8, basé sur Turbo, Stimulus et Ass
 - Entité `Event` prête à l'emploi
 - Contrats `CalendarEventInterface` et `CalendarEventRepositoryInterface` pour les entités personnalisées
 - Trait `CalendarEventTrait` pour réutiliser le mapping Doctrine commun
-- Thèmes CSS `default`, `bootstrap`, `tailwind` ou détection automatique
+- Thème Bootstrap par défaut, variantes `default`, `tailwind` et détection automatique optionnelle
 - CRUD EasyAdmin, champ calendrier et widget de dashboard optionnels
 
 ## Installation
@@ -48,6 +48,9 @@ La route par défaut est `/events`. Pour utiliser `/calendar`, créez `config/pa
 
 ```yaml
 calendar:
+    theme: bootstrap
+    assets:
+        include_cdn: false
     route_prefix: /calendar
     views:
         enabled: [month]
@@ -67,26 +70,43 @@ php bin/console cache:clear
 
 Les assets CSS sont exposés via AssetMapper. Aucune commande `assets:install` n'est nécessaire.
 
+Le thème par défaut est `bootstrap`, pour rester cohérent avec EasyAdmin et les classes utilisées par les templates. Le bundle charge uniquement son CSS interne par défaut. Si vous voulez un rendu standalone sans Bootstrap déjà présent dans l'application, activez explicitement les CDN Bootstrap :
+
+```yaml
+calendar:
+    theme: bootstrap
+    assets:
+        include_cdn: true
+```
+
+Les thèmes `tailwind`, `default` et `auto` restent disponibles via `calendar.theme`.
+
 ## Stimulus
 
-Copiez le contrôleur Stimulus du bundle dans votre application :
+Le contrôleur Stimulus est exposé comme un contrôleur Symfony UX. Activez-le dans `assets/controllers.json` :
 
-```bash
-mkdir -p assets/controllers
-cp vendor/jean-sebastien-christophe/ux-calendar-bundle/assets/dist/controllers/calendar_controller.js assets/controllers/
+```json
+{
+    "controllers": {
+        "@jean-sebastien-christophe/ux-calendar-bundle": {
+            "calendar": {
+                "enabled": true,
+                "fetch": "eager"
+            }
+        }
+    }
+}
 ```
 
-Enregistrez-le dans `assets/app.js` :
+Votre application doit démarrer StimulusBundle, par exemple dans `assets/bootstrap.js` :
 
 ```javascript
-import '@hotwired/turbo';
-import './bootstrap.js';
-import { startStimulusApp } from '@hotwired/stimulus-bundle';
-import CalendarController from './controllers/calendar_controller.js';
+import { startStimulusApp } from '@symfony/stimulus-bundle';
 
-const app = startStimulusApp();
-app.register('calendar', CalendarController);
+startStimulusApp();
 ```
+
+Chargez ensuite votre importmap dans le layout de l'application. Le layout du bundle ne charge pas `importmap('app')` automatiquement.
 
 Ouvrez ensuite `/events`, ou `/calendar` si vous avez configuré `route_prefix: /calendar`.
 
@@ -106,6 +126,12 @@ Ouvrez ensuite `/events`, ou `/calendar` si vous avez configuré `route_prefix: 
 ## Entité personnalisée
 
 L'entité par défaut est `JeanSebastienChristophe\CalendarBundle\Entity\Event`. Pour utiliser votre propre entité, elle doit implémenter `CalendarEventInterface`. Le trait `CalendarEventTrait` fournit le mapping Doctrine commun.
+
+Vous pouvez configurer l'entité avec la commande d'installation :
+
+```bash
+php bin/console ux-calendar:install --event-class='App\Entity\MyEvent'
+```
 
 ```php
 <?php
@@ -187,6 +213,8 @@ Configurez ensuite le bundle :
 calendar:
     event_class: App\Entity\MyEvent
 ```
+
+Cette valeur est utilisée par les contrôleurs, le resolver d'arguments et `EventType`. Un `createForm(EventType::class, $event)` attend donc l'entité configurée, pas l'entité par défaut du bundle.
 
 ## EasyAdmin
 

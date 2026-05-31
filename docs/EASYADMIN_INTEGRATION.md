@@ -269,7 +269,7 @@ Create a custom base template:
 {% block body_javascript %}
     {{ parent() }}
 
-    {# Include calendar Stimulus controller #}
+    {# Load the application's importmap and enabled Stimulus controllers #}
     {{ importmap('app') }}
 
     {# Add Turbo Frame for calendar modal #}
@@ -285,6 +285,8 @@ Create a custom base template:
     {{ calendar_theme_css()|raw }}
 {% endblock %}
 ```
+
+EasyAdmin charge déjà Bootstrap. Ne chargez `calendar_framework_css()` ou `calendar_framework_js()` que dans un écran standalone où Bootstrap n'est pas fourni par l'application.
 
 ### 3. Use the Modal Action
 

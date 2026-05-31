@@ -8,12 +8,12 @@
                 month: current_date|date_modify('-1 month')|date('m')
             }) }}"
                class="btn btn-outline-primary">
-                &larr; Mois précédent
+                &larr; {{ 'calendar.action.previous_month'|trans({}, 'calendar') }}
             </a>
 
             <a href="{{ path('calendar_index') }}"
                class="btn btn-outline-secondary mx-2">
-                Aujourd'hui
+                {{ 'calendar.action.today'|trans({}, 'calendar') }}
             </a>
 
             <a href="{{ path('calendar_month', {
@@ -21,19 +21,19 @@
                 month: current_date|date_modify('+1 month')|date('m')
             }) }}"
                class="btn btn-outline-primary">
-                Mois suivant &rarr;
+                {{ 'calendar.action.next_month'|trans({}, 'calendar') }} &rarr;
             </a>
         </div>
 
         <div>
-            <h2 class="mb-0">{{ current_date|format_datetime(locale='fr', pattern='MMMM yyyy') }}</h2>
+            <h2 class="mb-0">{{ current_date|format_datetime(pattern='MMMM yyyy') }}</h2>
         </div>
 
         <div>
             <a href="{{ path('calendar_event_new') }}"
                class="btn btn-success"
                data-turbo-frame="event-modal">
-                <i class="bi bi-plus-lg"></i> Nouvel événement
+                <i class="bi bi-plus-lg"></i> {{ 'calendar.action.new_event'|trans({}, 'calendar') }}
             </a>
         </div>
     </div>

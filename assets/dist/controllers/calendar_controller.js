@@ -15,7 +15,19 @@ export default class extends Controller {
     static values = {
         newEventUrl: String,
         editEventUrl: String,
-        selectedDate: String
+        selectedDate: String,
+        titleRequiredMessage: String,
+        titleTooLongMessage: String,
+        startDateRequiredMessage: String,
+        endDateRequiredMessage: String,
+        endDateAfterStartMessage: String,
+        colorInvalidMessage: String,
+        savingMessage: String,
+        createdMessage: String,
+        updatedMessage: String,
+        deletedMessage: String,
+        loadingErrorMessage: String,
+        networkErrorMessage: String
     };
 
     connect() {
@@ -24,14 +36,12 @@ export default class extends Controller {
         this.bindKeyboardShortcuts();
         this.bindFormValidation();
         this.bindTurboNotifications();
-        console.log('Calendar controller connected');
     }
 
     disconnect() {
         this.unbindKeyboardShortcuts();
         this.unbindFormValidation();
         this.unbindTurboNotifications();
-        console.log('Calendar controller disconnected');
     }
 
     /**
@@ -87,14 +97,14 @@ export default class extends Controller {
         if (title && !title.value.trim()) {
             errors.push({
                 field: title,
-                message: 'Le titre est obligatoire'
+                message: this.message('titleRequired', 'The title is required')
             });
         }
 
         if (title && title.value.length > 255) {
             errors.push({
                 field: title,
-                message: 'Le titre ne peut pas dépasser 255 caractères'
+                message: this.message('titleTooLong', 'The title cannot exceed 255 characters')
             });
         }
 
@@ -102,14 +112,14 @@ export default class extends Controller {
         if (startDate && !startDate.value) {
             errors.push({
                 field: startDate,
-                message: 'La date de début est obligatoire'
+                message: this.message('startDateRequired', 'The start date is required')
             });
         }
 
         if (endDate && !endDate.value) {
             errors.push({
                 field: endDate,
-                message: 'La date de fin est obligatoire'
+                message: this.message('endDateRequired', 'The end date is required')
             });
         }
 
@@ -121,7 +131,7 @@ export default class extends Controller {
             if (end < start) {
                 errors.push({
                     field: endDate,
-                    message: 'La date de fin doit être après la date de début'
+                    message: this.message('endDateAfterStart', 'The end date must be after the start date')
                 });
             }
         }
@@ -131,11 +141,17 @@ export default class extends Controller {
         if (color && color.value && !this.isValidHexColor(color.value)) {
             errors.push({
                 field: color,
-                message: 'Format de couleur invalide (ex: #3788d8)'
+                message: this.message('colorInvalid', 'Invalid color format (for example: #3788d8)')
             });
         }
 
         return errors;
+    }
+
+    message(name, fallback) {
+        const hasValue = this[`has${name.charAt(0).toUpperCase()}${name.slice(1)}MessageValue`];
+
+        return hasValue ? this[`${name}MessageValue`] : fallback;
     }
 
     /**
@@ -267,8 +283,15 @@ export default class extends Controller {
 
         toastContainer.appendChild(toast);
 
-        // Initialize and show Bootstrap toast
-        const bsToast = new bootstrap.Toast(toast, {
+        if (!window.bootstrap || !window.bootstrap.Toast) {
+            toast.classList.add('show');
+            setTimeout(() => toast.remove(), type === 'error' ? 6000 : 4000);
+
+            return toastId;
+        }
+
+        // Initialize and show Bootstrap toast when Bootstrap JS is available.
+        const bsToast = new window.bootstrap.Toast(toast, {
             autohide: type !== 'loading',
             delay: type === 'error' ? 6000 : 4000
         });
@@ -288,7 +311,12 @@ export default class extends Controller {
     hideToast(toastId) {
         const toast = document.getElementById(toastId);
         if (toast) {
-            const bsToast = bootstrap.Toast.getInstance(toast);
+            if (!window.bootstrap || !window.bootstrap.Toast) {
+                toast.remove();
+                return;
+            }
+
+            const bsToast = window.bootstrap.Toast.getInstance(toast);
             if (bsToast) {
                 bsToast.hide();
             }
@@ -303,7 +331,7 @@ export default class extends Controller {
         this.submitStartHandler = (event) => {
             const form = event.target;
             if (form.closest('#event-modal')) {
-                this.loadingToastId = this.showToast('Enregistrement en cours...', 'loading');
+                this.loadingToastId = this.showToast(this.message('saving', 'Saving...'), 'loading');
             }
         };
 
@@ -327,11 +355,11 @@ export default class extends Controller {
                     streams.forEach(stream => {
                         const streamAction = stream.getAttribute('action');
                         if (streamAction === 'append') {
-                            this.showToast('Événement créé avec succès !', 'success');
+                            this.showToast(this.message('created', 'Event created successfully.'), 'success');
                         } else if (streamAction === 'replace') {
-                            this.showToast('Événement modifié avec succès !', 'success');
+                            this.showToast(this.message('updated', 'Event updated successfully.'), 'success');
                         } else if (streamAction === 'remove') {
-                            this.showToast('Événement supprimé !', 'success');
+                            this.showToast(this.message('deleted', 'Event deleted successfully.'), 'success');
                         }
                     });
                 }, 100);
@@ -339,14 +367,14 @@ export default class extends Controller {
         };
 
         this.frameMissingHandler = (event) => {
-            this.showToast('Erreur de chargement. Veuillez réessayer.', 'error');
+            this.showToast(this.message('loadingError', 'Loading failed. Please try again.'), 'error');
         };
 
         this.fetchErrorHandler = (event) => {
             if (this.loadingToastId) {
                 this.hideToast(this.loadingToastId);
             }
-            this.showToast('Erreur de connexion. Vérifiez votre réseau.', 'error');
+            this.showToast(this.message('networkError', 'Connection error. Check your network.'), 'error');
         };
 
         // Bind all handlers

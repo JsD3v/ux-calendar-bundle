@@ -11,7 +11,7 @@
                     {{ event.startDate|date('H:i') }} - {{ event.endDate|date('H:i') }}
                 </div>
             {% else %}
-                <div class="calendar-event-time">Journée entière</div>
+                <div class="calendar-event-time">{{ 'calendar.event.all_day'|trans({}, 'calendar') }}</div>
             {% endif %}
         </div>
     </a>
@@ -23,9 +23,9 @@
               class="calendar-event-exclude-form"
               data-turbo="true"
               data-turbo-stream="true"
-              onsubmit="return confirm('Supprimer cet événement pour le {{ currentDate|date('d/m/Y') }} uniquement ?');">
+              onsubmit="return confirm('{{ 'calendar.confirm.exclude_date'|trans({'%date%': currentDate|format_date}, 'calendar')|e('js') }}');">
             <input type="hidden" name="_token" value="{{ csrf_token('exclude' ~ event.id ~ currentDate|date('Y-m-d')) }}">
-            <button type="submit" class="btn-event-exclude" title="Supprimer pour ce jour uniquement">
+            <button type="submit" class="btn-event-exclude" title="{{ 'calendar.action.exclude_date'|trans({}, 'calendar') }}">
                 <i class="bi bi-x"></i>
             </button>
         </form>

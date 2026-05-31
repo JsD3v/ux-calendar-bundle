@@ -22,13 +22,17 @@ class CalendarExtensionTest extends TestCase
         $functions = $extension->getFunctions();
 
         $this->assertIsArray($functions);
-        $this->assertCount(2, $functions);
+        $this->assertCount(4, $functions);
 
         $this->assertInstanceOf(TwigFunction::class, $functions[0]);
         $this->assertInstanceOf(TwigFunction::class, $functions[1]);
+        $this->assertInstanceOf(TwigFunction::class, $functions[2]);
+        $this->assertInstanceOf(TwigFunction::class, $functions[3]);
 
         $functionNames = array_map(fn($f) => $f->getName(), $functions);
         $this->assertContains('calendar_theme_css', $functionNames);
+        $this->assertContains('calendar_framework_css', $functionNames);
+        $this->assertContains('calendar_framework_js', $functionNames);
         $this->assertContains('calendar_theme', $functionNames);
     }
 
@@ -49,7 +53,6 @@ class CalendarExtensionTest extends TestCase
 
         $reflection = new \ReflectionClass($themeCssFunction);
         $property = $reflection->getProperty('options');
-        $property->setAccessible(true);
         $options = $property->getValue($themeCssFunction);
 
         $this->assertArrayHasKey('is_safe', $options);
@@ -174,6 +177,34 @@ class CalendarExtensionTest extends TestCase
         $this->assertStringContainsString('<link rel="stylesheet" href="/bundles/calendar/styles/themes/default.css">', $css);
     }
 
+    public function testFrameworkAssetsAreDisabledByDefault(): void
+    {
+        $extension = new CalendarExtension($this->themeDetector);
+
+        $this->assertSame('', $extension->getFrameworkCss());
+        $this->assertSame('', $extension->getFrameworkJs());
+    }
+
+    public function testFrameworkAssetsIncludeBootstrapCdnWhenEnabled(): void
+    {
+        $extension = new CalendarExtension($this->themeDetector, 'bootstrap', true);
+
+        $css = $extension->getFrameworkCss();
+        $js = $extension->getFrameworkJs();
+
+        $this->assertStringContainsString('bootstrap@5.3.3/dist/css/bootstrap.min.css', $css);
+        $this->assertStringContainsString('bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', $css);
+        $this->assertStringContainsString('bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', $js);
+    }
+
+    public function testFrameworkAssetsStayDisabledForTailwindTheme(): void
+    {
+        $extension = new CalendarExtension($this->themeDetector, 'tailwind', true);
+
+        $this->assertSame('', $extension->getFrameworkCss());
+        $this->assertSame('', $extension->getFrameworkJs());
+    }
+
     public function testGetThemeFunctionCallable(): void
     {
         $extension = new CalendarExtension($this->themeDetector, 'bootstrap');
@@ -217,15 +248,14 @@ class CalendarExtensionTest extends TestCase
         $this->assertStringContainsString('calendar-core.css', $result);
     }
 
-    public function testExtensionDefaultsToAutoTheme(): void
+    public function testExtensionDefaultsToBootstrapTheme(): void
     {
-        $this->themeDetector->method('detectTheme')
-            ->willReturn('tailwind');
+        $this->themeDetector->expects($this->never())
+            ->method('detectTheme');
 
-        // When no second parameter is provided, it should default to 'auto'
         $extension = new CalendarExtension($this->themeDetector);
         $theme = $extension->getTheme();
 
-        $this->assertEquals('tailwind', $theme);
+        $this->assertEquals('bootstrap', $theme);
     }
 }

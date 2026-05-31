@@ -57,6 +57,8 @@ class CalendarExtension extends Extension implements PrependExtensionInterface
         $container->setParameter('calendar.event_class', $config['event_class']);
         $container->setParameter('calendar.route_prefix', $config['route_prefix']);
         $container->setParameter('calendar.theme', $config['theme']);
+        $container->setParameter('calendar.assets', $config['assets']);
+        $container->setParameter('calendar.assets.include_cdn', $config['assets']['include_cdn']);
         $container->setParameter('calendar.views', $config['views']);
         $container->setParameter('calendar.features', $config['features']);
 
@@ -159,6 +161,20 @@ class CalendarExtension extends Extension implements PrependExtensionInterface
                     $eventClass,
                     CalendarEventInterface::class
                 )
+            );
+        }
+
+        $reflectionClass = new \ReflectionClass($eventClass);
+        if (!$reflectionClass->isInstantiable()) {
+            throw new \InvalidArgumentException(
+                sprintf('The event class "%s" must be instantiable.', $eventClass)
+            );
+        }
+
+        $constructor = $reflectionClass->getConstructor();
+        if ($constructor !== null && $constructor->getNumberOfRequiredParameters() > 0) {
+            throw new \InvalidArgumentException(
+                sprintf('The event class "%s" must have no required constructor arguments.', $eventClass)
             );
         }
     }

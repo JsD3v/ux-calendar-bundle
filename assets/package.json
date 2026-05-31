@@ -1,0 +1,33 @@
+{
+    "name": "@jean-sebastien-christophe/ux-calendar-bundle",
+    "description": "Symfony UX calendar controller",
+    "license": "MIT",
+    "version": "1.0.0",
+    "keywords": [
+        "symfony-ux",
+        "calendar",
+        "stimulus"
+    ],
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "main": "dist/controller.js",
+    "symfony": {
+        "controllers": {
+            "calendar": {
+                "main": "dist/controller.js",
+                "name": "calendar",
+                "webpackMode": "eager",
+                "fetch": "eager",
+                "enabled": true
+            }
+        },
+        "importmap": {
+            "@hotwired/stimulus": "^3.0.0"
+        }
+    },
+    "peerDependencies": {
+        "@hotwired/stimulus": "^3.0.0"
+    }
+}
