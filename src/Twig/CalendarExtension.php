@@ -11,7 +11,8 @@ class CalendarExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ThemeDetector $themeDetector,
-        private readonly string $configuredTheme = 'auto',
+        private readonly string $configuredTheme = 'bootstrap',
+        private readonly bool $includeCdnAssets = false,
         private readonly ?AssetMapperInterface $assetMapper = null
     ) {
     }
@@ -20,6 +21,12 @@ class CalendarExtension extends AbstractExtension
     {
         return [
             new TwigFunction('calendar_theme_css', [$this, 'getThemeCss'], [
+                'is_safe' => ['html']
+            ]),
+            new TwigFunction('calendar_framework_css', [$this, 'getFrameworkCss'], [
+                'is_safe' => ['html']
+            ]),
+            new TwigFunction('calendar_framework_js', [$this, 'getFrameworkJs'], [
                 'is_safe' => ['html']
             ]),
             new TwigFunction('calendar_theme', [$this, 'getTheme']),
@@ -61,5 +68,31 @@ class CalendarExtension extends AbstractExtension
         $themeCSS = '<link rel="stylesheet" href="' . $themeUrl . '">';
 
         return $coreCSS . "\n" . $themeCSS;
+    }
+
+    public function getFrameworkCss(): string
+    {
+        if (!$this->shouldIncludeBootstrapCdnAssets()) {
+            return '';
+        }
+
+        return implode("\n", [
+            '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">',
+            '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">',
+        ]);
+    }
+
+    public function getFrameworkJs(): string
+    {
+        if (!$this->shouldIncludeBootstrapCdnAssets()) {
+            return '';
+        }
+
+        return '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>';
+    }
+
+    private function shouldIncludeBootstrapCdnAssets(): bool
+    {
+        return $this->includeCdnAssets && $this->getTheme() === 'bootstrap';
     }
 }

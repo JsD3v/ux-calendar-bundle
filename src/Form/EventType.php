@@ -2,6 +2,7 @@
 
 namespace JeanSebastienChristophe\CalendarBundle\Form;
 
+use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventInterface;
 use JeanSebastienChristophe\CalendarBundle\Entity\Event;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -14,48 +15,60 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EventType extends AbstractType
 {
+    public function __construct(
+        private readonly string $eventClass = Event::class
+    ) {
+        if (!is_a($this->eventClass, CalendarEventInterface::class, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The event class "%s" must implement "%s".',
+                $this->eventClass,
+                CalendarEventInterface::class
+            ));
+        }
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Titre',
+                'label' => 'calendar.form.title',
                 'attr' => [
-                    'placeholder' => 'Ex: Réunion d\'équipe',
+                    'placeholder' => 'calendar.form.title_placeholder',
                     'class' => 'form-control',
                 ],
             ])
             ->add('startDate', DateTimeType::class, [
-                'label' => 'Date de début',
+                'label' => 'calendar.form.start_date',
                 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('endDate', DateTimeType::class, [
-                'label' => 'Date de fin',
+                'label' => 'calendar.form.end_date',
                 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('allDay', CheckboxType::class, [
-                'label' => 'Journée entière',
+                'label' => 'calendar.form.all_day',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
                 ],
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description',
+                'label' => 'calendar.form.description',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'Description de l\'événement...',
+                    'placeholder' => 'calendar.form.description_placeholder',
                     'class' => 'form-control',
                     'rows' => 4,
                 ],
             ])
             ->add('color', ColorType::class, [
-                'label' => 'Couleur',
+                'label' => 'calendar.form.color',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control form-control-color',
@@ -67,7 +80,8 @@ class EventType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Event::class,
+            'data_class' => $this->eventClass,
+            'translation_domain' => 'calendar',
         ]);
     }
 }

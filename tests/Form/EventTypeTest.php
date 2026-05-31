@@ -57,11 +57,11 @@ class EventTypeTest extends TypeTestCase
         $titleConfig = $form->get('title')->getConfig();
 
         $this->assertEquals(TextType::class, get_class($titleConfig->getType()->getInnerType()));
-        $this->assertEquals('Titre', $titleConfig->getOption('label'));
+        $this->assertEquals('calendar.form.title', $titleConfig->getOption('label'));
 
         $attr = $titleConfig->getOption('attr');
         $this->assertArrayHasKey('placeholder', $attr);
-        $this->assertEquals('Ex: Réunion d\'équipe', $attr['placeholder']);
+        $this->assertEquals('calendar.form.title_placeholder', $attr['placeholder']);
         $this->assertArrayHasKey('class', $attr);
         $this->assertEquals('form-control', $attr['class']);
     }
@@ -72,7 +72,7 @@ class EventTypeTest extends TypeTestCase
         $startDateConfig = $form->get('startDate')->getConfig();
 
         $this->assertEquals(DateTimeType::class, get_class($startDateConfig->getType()->getInnerType()));
-        $this->assertEquals('Date de début', $startDateConfig->getOption('label'));
+        $this->assertEquals('calendar.form.start_date', $startDateConfig->getOption('label'));
         $this->assertEquals('single_text', $startDateConfig->getOption('widget'));
 
         $attr = $startDateConfig->getOption('attr');
@@ -86,7 +86,7 @@ class EventTypeTest extends TypeTestCase
         $endDateConfig = $form->get('endDate')->getConfig();
 
         $this->assertEquals(DateTimeType::class, get_class($endDateConfig->getType()->getInnerType()));
-        $this->assertEquals('Date de fin', $endDateConfig->getOption('label'));
+        $this->assertEquals('calendar.form.end_date', $endDateConfig->getOption('label'));
         $this->assertEquals('single_text', $endDateConfig->getOption('widget'));
 
         $attr = $endDateConfig->getOption('attr');
@@ -100,7 +100,7 @@ class EventTypeTest extends TypeTestCase
         $allDayConfig = $form->get('allDay')->getConfig();
 
         $this->assertEquals(CheckboxType::class, get_class($allDayConfig->getType()->getInnerType()));
-        $this->assertEquals('Journée entière', $allDayConfig->getOption('label'));
+        $this->assertEquals('calendar.form.all_day', $allDayConfig->getOption('label'));
         $this->assertFalse($allDayConfig->getRequired());
 
         $attr = $allDayConfig->getOption('attr');
@@ -114,12 +114,12 @@ class EventTypeTest extends TypeTestCase
         $descriptionConfig = $form->get('description')->getConfig();
 
         $this->assertEquals(TextareaType::class, get_class($descriptionConfig->getType()->getInnerType()));
-        $this->assertEquals('Description', $descriptionConfig->getOption('label'));
+        $this->assertEquals('calendar.form.description', $descriptionConfig->getOption('label'));
         $this->assertFalse($descriptionConfig->getRequired());
 
         $attr = $descriptionConfig->getOption('attr');
         $this->assertArrayHasKey('placeholder', $attr);
-        $this->assertEquals('Description de l\'événement...', $attr['placeholder']);
+        $this->assertEquals('calendar.form.description_placeholder', $attr['placeholder']);
         $this->assertArrayHasKey('class', $attr);
         $this->assertEquals('form-control', $attr['class']);
         $this->assertArrayHasKey('rows', $attr);
@@ -132,7 +132,7 @@ class EventTypeTest extends TypeTestCase
         $colorConfig = $form->get('color')->getConfig();
 
         $this->assertEquals(ColorType::class, get_class($colorConfig->getType()->getInnerType()));
-        $this->assertEquals('Couleur', $colorConfig->getOption('label'));
+        $this->assertEquals('calendar.form.color', $colorConfig->getOption('label'));
         $this->assertFalse($colorConfig->getRequired());
 
         $attr = $colorConfig->getOption('attr');
@@ -182,6 +182,7 @@ class EventTypeTest extends TypeTestCase
         $config = $form->getConfig();
 
         $this->assertEquals(Event::class, $config->getOption('data_class'));
+        $this->assertEquals('calendar', $config->getOption('translation_domain'));
     }
 
     public function testFormWithMultiDayEvent(): void

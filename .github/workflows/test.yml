@@ -1,4 +1,4 @@
-name: Tests (PHP 8.4)
+name: Tests
 
 on:
   push:
@@ -9,6 +9,62 @@ on:
 jobs:
   phpunit:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: '8.2'
+            stack: 'Symfony 7.4 / UX 2 / EasyAdmin 4 lowest'
+            constraints: >-
+              symfony/framework-bundle:^7.4
+              symfony/asset-mapper:^7.4
+              symfony/console:^7.4
+              symfony/form:^7.4
+              symfony/validator:^7.4
+              symfony/twig-bundle:^7.4
+              symfony/translation:^7.4
+              symfony/ux-turbo:^2.0
+              symfony/stimulus-bundle:^2.0
+            dev-constraints: >-
+              symfony/yaml:^7.4
+              symfony/ux-chartjs:^2.0
+              easycorp/easyadmin-bundle:^4.0
+            composer-flags: '--prefer-lowest --prefer-stable'
+          - php-version: '8.3'
+            stack: 'Symfony 7.4 / UX 2 / EasyAdmin 4 latest'
+            constraints: >-
+              symfony/framework-bundle:^7.4
+              symfony/asset-mapper:^7.4
+              symfony/console:^7.4
+              symfony/form:^7.4
+              symfony/validator:^7.4
+              symfony/twig-bundle:^7.4
+              symfony/translation:^7.4
+              symfony/ux-turbo:^2.0
+              symfony/stimulus-bundle:^2.0
+            dev-constraints: >-
+              symfony/yaml:^7.4
+              symfony/ux-chartjs:^2.0
+              easycorp/easyadmin-bundle:^4.0
+            composer-flags: ''
+          - php-version: '8.4'
+            stack: 'Symfony 8 / UX 3 / EasyAdmin 5 latest'
+            constraints: >-
+              symfony/framework-bundle:^8.0
+              symfony/asset-mapper:^8.0
+              symfony/console:^8.0
+              symfony/form:^8.0
+              symfony/validator:^8.0
+              symfony/twig-bundle:^8.0
+              symfony/translation:^8.0
+              symfony/ux-turbo:^3.0
+              symfony/stimulus-bundle:^3.0
+            dev-constraints: >-
+              symfony/yaml:^8.0
+              symfony/ux-chartjs:^3.0
+              easycorp/easyadmin-bundle:^5.0
+            composer-flags: ''
+    name: PHP ${{ matrix.php-version }} - ${{ matrix.stack }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,15 +72,24 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: ${{ matrix.php-version }}
           coverage: none
           extensions: intl, pdo_sqlite
           tools: composer:v2
           ini-values: date.timezone=UTC
           cache: composer
 
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-publish --no-interaction
+
+      - name: Apply compatibility constraints
+        run: composer require --no-update --no-interaction ${{ matrix.constraints }}
+
+      - name: Apply dev compatibility constraints
+        run: composer require --dev --no-update --no-interaction ${{ matrix.dev-constraints }}
+
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        run: composer update --no-interaction --prefer-dist --no-progress ${{ matrix.composer-flags }}
 
       - name: Run tests
         run: composer test

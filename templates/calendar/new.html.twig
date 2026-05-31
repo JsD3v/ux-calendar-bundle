@@ -1,6 +1,6 @@
 {% extends '@Calendar/calendar/base.html.twig' %}
 
-{% block calendar_title %}Nouvel événement{% endblock %}
+{% block calendar_title %}{{ 'calendar.new.title'|trans({}, 'calendar') }}{% endblock %}
 
 {% block calendar_body %}
 <turbo-frame id="event-modal">
@@ -8,11 +8,11 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Nouvel événement</h5>
+                    <h5 class="modal-title">{{ 'calendar.new.title'|trans({}, 'calendar') }}</h5>
                     <a href="{{ path('calendar_index') }}" 
                        class="btn-close" 
                        data-turbo-frame="event-modal"
-                       aria-label="Close"></a>
+                       aria-label="{{ 'calendar.action.close'|trans({}, 'calendar') }}"></a>
                 </div>
                 
                 {{ form_start(form, {
@@ -48,10 +48,10 @@
                     <a href="{{ path('calendar_index') }}" 
                        class="btn btn-secondary"
                        data-turbo-frame="event-modal">
-                        Annuler
+                        {{ 'calendar.action.cancel'|trans({}, 'calendar') }}
                     </a>
                     <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-lg"></i> Créer l'événement
+                        <i class="bi bi-check-lg"></i> {{ 'calendar.action.create_event'|trans({}, 'calendar') }}
                     </button>
                 </div>
                 

@@ -1,12 +1,25 @@
 {% extends '@Calendar/calendar/base.html.twig' %}
 
-{% block calendar_title %}Calendrier - {{ current_date|date('F Y') }}{% endblock %}
+{% block calendar_title %}{{ 'calendar.title'|trans({}, 'calendar') }} - {{ current_date|format_datetime(pattern='MMMM yyyy') }}{% endblock %}
 
 {% block calendar_body %}
-<div class="container py-5" data-controller="calendar">
+<div class="container py-5"
+     data-controller="calendar"
+     data-calendar-title-required-message-value="{{ 'calendar.validation.title_required'|trans({}, 'validators') }}"
+     data-calendar-title-too-long-message-value="{{ 'calendar.validation.title_too_long'|trans({}, 'validators') }}"
+     data-calendar-start-date-required-message-value="{{ 'calendar.validation.start_date_required'|trans({}, 'validators') }}"
+     data-calendar-end-date-required-message-value="{{ 'calendar.validation.end_date_required'|trans({}, 'validators') }}"
+     data-calendar-end-date-after-start-message-value="{{ 'calendar.validation.end_date_after_start'|trans({}, 'validators') }}"
+     data-calendar-color-invalid-message-value="{{ 'calendar.validation.color_hex'|trans({}, 'validators') }}"
+     data-calendar-saving-message-value="{{ 'calendar.flash.saving'|trans({}, 'calendar') }}"
+     data-calendar-created-message-value="{{ 'calendar.flash.created'|trans({}, 'calendar') }}"
+     data-calendar-updated-message-value="{{ 'calendar.flash.updated'|trans({}, 'calendar') }}"
+     data-calendar-deleted-message-value="{{ 'calendar.flash.deleted'|trans({}, 'calendar') }}"
+     data-calendar-loading-error-message-value="{{ 'calendar.error.loading'|trans({}, 'calendar') }}"
+     data-calendar-network-error-message-value="{{ 'calendar.error.network'|trans({}, 'calendar') }}">
     <div class="row mb-4">
         <div class="col">
-            <h1 class="mb-4">Calendrier</h1>
+            <h1 class="mb-4">{{ 'calendar.title'|trans({}, 'calendar') }}</h1>
         </div>
     </div>
 

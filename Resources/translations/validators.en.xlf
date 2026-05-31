@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="validators">
+    <body>
+      <trans-unit id="calendar.validation.title_required"><source>calendar.validation.title_required</source><target>The title is required</target></trans-unit>
+      <trans-unit id="calendar.validation.title_too_long"><source>calendar.validation.title_too_long</source><target>The title cannot exceed 255 characters</target></trans-unit>
+      <trans-unit id="calendar.validation.start_date_required"><source>calendar.validation.start_date_required</source><target>The start date is required</target></trans-unit>
+      <trans-unit id="calendar.validation.end_date_required"><source>calendar.validation.end_date_required</source><target>The end date is required</target></trans-unit>
+      <trans-unit id="calendar.validation.end_date_after_start"><source>calendar.validation.end_date_after_start</source><target>The end date must be after the start date</target></trans-unit>
+      <trans-unit id="calendar.validation.color_hex"><source>calendar.validation.color_hex</source><target>The color must use hexadecimal format (#RRGGBB)</target></trans-unit>
+    </body>
+  </file>
+</xliff>

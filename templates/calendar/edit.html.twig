@@ -1,6 +1,6 @@
 {% extends '@Calendar/calendar/base.html.twig' %}
 
-{% block calendar_title %}Modifier l'événement{% endblock %}
+{% block calendar_title %}{{ 'calendar.edit.title'|trans({}, 'calendar') }}{% endblock %}
 
 {% block calendar_body %}
 <turbo-frame id="event-modal">
@@ -8,11 +8,11 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Modifier l'événement</h5>
+                    <h5 class="modal-title">{{ 'calendar.edit.title'|trans({}, 'calendar') }}</h5>
                     <a href="{{ path('calendar_index') }}"
                        class="btn-close"
                        data-turbo-frame="event-modal"
-                       aria-label="Close"></a>
+                       aria-label="{{ 'calendar.action.close'|trans({}, 'calendar') }}"></a>
                 </div>
 
                 {{ form_start(form, {
@@ -48,10 +48,10 @@
                     <a href="{{ path('calendar_index') }}"
                        class="btn btn-secondary"
                        data-turbo-frame="event-modal">
-                        Annuler
+                        {{ 'calendar.action.cancel'|trans({}, 'calendar') }}
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i> Enregistrer
+                        <i class="bi bi-check-lg"></i> {{ 'calendar.action.save'|trans({}, 'calendar') }}
                     </button>
                 </div>
 
@@ -60,14 +60,14 @@
                 {# Delete form - outside the update form to avoid nesting #}
                 <form method="post"
                       action="{{ path('calendar_event_delete', {id: event.id}) }}"
-                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');"
+                      onsubmit="return confirm('{{ 'calendar.confirm.delete'|trans({}, 'calendar')|e('js') }}');"
                       class="position-absolute bottom-0 start-0 p-3"
                       data-turbo="true"
                       data-turbo-stream="true">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash"></i> Supprimer
+                        <i class="bi bi-trash"></i> {{ 'calendar.action.delete'|trans({}, 'calendar') }}
                     </button>
                 </form>
             </div>

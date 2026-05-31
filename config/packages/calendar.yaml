@@ -2,6 +2,9 @@
 # This file is automatically loaded by Symfony Flex
 
 calendar:
+    theme: bootstrap
+    assets:
+        include_cdn: false
     route_prefix: /calendar
     views:
         enabled: [month]

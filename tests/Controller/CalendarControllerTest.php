@@ -31,7 +31,6 @@ class CalendarControllerTest extends TestCase
         // Use reflection to test private method
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         $events = [];
         $result = $method->invokeArgs($this->controller, [2025, 1, $events]);
@@ -47,7 +46,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         $events = [];
         $result = $method->invokeArgs($this->controller, [2025, 1, $events]);
@@ -61,7 +59,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         $now = new \DateTime();
         $year = (int) $now->format('Y');
@@ -88,7 +85,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         $event = new Event();
         $event->setTitle('Test Event')
@@ -116,7 +112,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         $event = new Event();
         $event->setTitle('Multi-day Event')
@@ -145,7 +140,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         // 2024 is a leap year
         $events = [];
@@ -168,7 +162,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         // 2025 is not a leap year
         $events = [];
@@ -191,7 +184,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         // January 2025 starts on Wednesday (index 2 in 0-based week starting Monday)
         $events = [];
@@ -212,7 +204,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         // January 2025 has 31 days
         $events = [];
@@ -235,7 +226,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         $events = [];
         $result = $method->invokeArgs($this->controller, [2025, 1, $events]);
@@ -257,7 +247,6 @@ class CalendarControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass($this->controller);
         $method = $reflection->getMethod('buildCalendarGrid');
-        $method->setAccessible(true);
 
         $event = new Event();
         $event->setTitle('Test Event')

@@ -79,7 +79,7 @@ class CalendarController extends AbstractController
                 $date = new \DateTime();
                 $event->setStartDate($date);
                 $event->setEndDate((clone $date)->modify('+1 hour'));
-                $this->addFlash('warning', 'La date fournie est invalide, utilisation de la date du jour.');
+                $this->addFlash('warning', 'calendar.flash.invalid_date');
             }
         }
 
@@ -113,7 +113,7 @@ class CalendarController extends AbstractController
                 return $response;
             }
 
-            $this->addFlash('success', 'Événement créé avec succès !');
+            $this->addFlash('success', 'calendar.flash.created');
             return $this->redirectToRoute('calendar_month', [
                 'year' => $event->getStartDate()->format('Y'),
                 'month' => $event->getStartDate()->format('m'),
@@ -158,7 +158,7 @@ class CalendarController extends AbstractController
                 return $response;
             }
 
-            $this->addFlash('success', 'Événement modifié avec succès !');
+            $this->addFlash('success', 'calendar.flash.updated');
             return $this->redirectToRoute('calendar_month', [
                 'year' => $event->getStartDate()->format('Y'),
                 'month' => $event->getStartDate()->format('m'),
@@ -183,7 +183,7 @@ class CalendarController extends AbstractController
         try {
             $dateToExclude = new \DateTime($date);
         } catch (\Exception $e) {
-            throw $this->createNotFoundException('Date invalide');
+            throw $this->createNotFoundException('calendar.error.invalid_date');
         }
 
         // Exclure la date
@@ -200,7 +200,7 @@ class CalendarController extends AbstractController
             return $response;
         }
 
-        $this->addFlash('success', 'Événement supprimé pour le ' . $dateToExclude->format('d/m/Y'));
+        $this->addFlash('success', 'calendar.flash.date_excluded');
         return $this->redirectToRoute('calendar_month', [
             'year' => $dateToExclude->format('Y'),
             'month' => $dateToExclude->format('m'),
@@ -229,7 +229,7 @@ class CalendarController extends AbstractController
                 return $response;
             }
 
-            $this->addFlash('success', 'Événement supprimé avec succès !');
+            $this->addFlash('success', 'calendar.flash.deleted');
 
             // Rediriger vers le mois de l'événement supprimé pour conserver le contexte
             return $this->redirectToRoute('calendar_month', [
