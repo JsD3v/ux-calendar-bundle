@@ -1,29 +1,29 @@
-# CalendarBundle pour Symfony 8
+# CalendarBundle for Symfony 8
 
 [![Tests](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml/badge.svg)](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml)
 [![PHPStan](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/phpstan.yml/badge.svg)](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/phpstan.yml)
 
-Bundle calendrier léger pour Symfony 8, basé sur Turbo, Stimulus et AssetMapper. Il fournit une vue mensuelle, des formulaires de gestion d'événements et des helpers EasyAdmin, sans dépendance JavaScript lourde de type FullCalendar. Les CDN tiers ne sont pas chargés par défaut.
+A lightweight calendar bundle for Symfony 8, built on Turbo, Stimulus and AssetMapper. It provides month, week and day views, event management forms and EasyAdmin helpers, without a heavy JavaScript dependency such as FullCalendar. No third-party CDNs are loaded by default.
 
-## Compatibilité
+## Compatibility
 
 - PHP >= 8.4
-- Symfony FrameworkBundle, Form, Validator, TwigBundle, Console, Translation et AssetMapper `^8.0`
-- Symfony UX Turbo et Stimulus Bundle `^2.0|^3.0`
-- Doctrine ORM `^2.0|^3.0` et DoctrineBundle `^2.0|^3.0`
-- EasyAdmin `^4.0|^5.0` optionnel pour l'admin
-- Symfony UX ChartJS `^2.0|^3.0` optionnel pour les graphiques du dashboard
+- Symfony FrameworkBundle, Form, Validator, TwigBundle, Console, Translation and AssetMapper `^8.0`
+- Symfony UX Turbo and Stimulus Bundle `^2.0|^3.0`
+- Doctrine ORM `^2.0|^3.0` and DoctrineBundle `^2.0|^3.0`
+- EasyAdmin `^4.0|^5.0`, optional, for the admin panel
+- Symfony UX ChartJS `^2.0|^3.0`, optional, for the dashboard charts
 
-## Fonctionnalités
+## Features
 
-- Vues mois, semaine et jour avec sélecteur intégré et mises à jour Turbo Streams
-- Vues semaine et jour en grille horaire (créneaux 0h–23h) + ligne « toute la journée »
-- Création, édition, suppression et exclusion ponctuelle de dates
-- Entité `Event` prête à l'emploi
-- Contrats `CalendarEventInterface` et `CalendarEventRepositoryInterface` pour les entités personnalisées
-- Trait `CalendarEventTrait` pour réutiliser le mapping Doctrine commun
-- Thème Bootstrap par défaut, variantes `default`, `tailwind` et détection automatique optionnelle
-- CRUD EasyAdmin, champ calendrier et widget de dashboard optionnels
+- Month, week and day views with a built-in switcher and Turbo Streams updates
+- Week and day views rendered as an hourly grid (0:00–23:00 slots), plus an "all-day" row
+- Create, edit, delete and one-off date exclusion
+- Ready-to-use `Event` entity
+- `CalendarEventInterface` and `CalendarEventRepositoryInterface` contracts for custom entities
+- `CalendarEventTrait` to reuse the common Doctrine mapping
+- Bootstrap theme by default, with `default` and `tailwind` variants and optional automatic detection
+- Optional EasyAdmin CRUD, calendar field and dashboard widget
 
 ## Installation
 
@@ -31,13 +31,13 @@ Bundle calendrier léger pour Symfony 8, basé sur Turbo, Stimulus et AssetMappe
 composer require jean-sebastien-christophe/ux-calendar-bundle
 ```
 
-Ajoutez le bundle dans `config/bundles.php` :
+Register the bundle in `config/bundles.php`:
 
 ```php
 JeanSebastienChristophe\CalendarBundle\CalendarBundle::class => ['all' => true],
 ```
 
-Déclarez les routes dans `config/routes/calendar.yaml` :
+Declare the routes in `config/routes/calendar.yaml`:
 
 ```yaml
 calendar_bundle:
@@ -45,7 +45,7 @@ calendar_bundle:
     type: attribute
 ```
 
-La route par défaut est `/events`. Pour utiliser `/calendar`, créez `config/packages/calendar.yaml` :
+The default route is `/events`. To use `/calendar` instead, create `config/packages/calendar.yaml`:
 
 ```yaml
 calendar:
@@ -61,7 +61,7 @@ calendar:
         colors: true
 ```
 
-Créez puis appliquez la migration Doctrine :
+Create and apply the Doctrine migration:
 
 ```bash
 php bin/console make:migration
@@ -69,13 +69,13 @@ php bin/console doctrine:migrations:migrate
 php bin/console cache:clear
 ```
 
-Les assets CSS sont exposés via AssetMapper. Aucune commande `assets:install` n'est nécessaire.
+The CSS assets are exposed through AssetMapper. No `assets:install` command is required.
 
-Le thème par défaut est `bootstrap`, pour rester cohérent avec EasyAdmin et les classes utilisées par les templates. Le thème `bootstrap.css` se contente de mapper les variables `--bs-*` : **Bootstrap lui-même doit donc être chargé**, sinon les classes (`btn`, `container`, `alert`…) des templates ne sont pas stylées. Deux façons de le fournir :
+The default theme is `bootstrap`, to stay consistent with EasyAdmin and the classes used by the templates. The `bootstrap.css` theme only maps the `--bs-*` variables: **Bootstrap itself must therefore be loaded**, otherwise the classes (`btn`, `container`, `alert`, …) used in the templates are left unstyled. There are two ways to provide it:
 
-1. **Via l'AssetMapper de votre application (recommandé).** Les pages standalone du calendrier rendent automatiquement `importmap('app')` (voir la section Stimulus). Si votre `importmap.php` importe Bootstrap (par ex. `import 'bootstrap/dist/css/bootstrap.min.css'` dans `assets/app.js`), il est chargé sur `/events` sans rien d'autre à faire.
+1. **Through your application's AssetMapper (recommended).** The calendar's standalone pages automatically render `importmap('app')` (see the Stimulus section). If your `importmap.php` imports Bootstrap (for example `import 'bootstrap/dist/css/bootstrap.min.css'` in `assets/app.js`), it is loaded on `/events` with nothing else to do.
 
-2. **Via le CDN Bootstrap**, utile pour un rendu standalone quand l'application n'embarque pas Bootstrap :
+2. **Through the Bootstrap CDN**, useful for a standalone rendering when the application does not embed Bootstrap:
 
 ```yaml
 calendar:
@@ -84,11 +84,11 @@ calendar:
         include_cdn: true
 ```
 
-Les thèmes `tailwind`, `default` et `auto` restent disponibles via `calendar.theme`.
+The `tailwind`, `default` and `auto` themes remain available through `calendar.theme`.
 
 ## Stimulus
 
-Le contrôleur Stimulus est exposé comme un contrôleur Symfony UX. Activez-le dans `assets/controllers.json` :
+The Stimulus controller is exposed as a Symfony UX controller. Enable it in `assets/controllers.json`:
 
 ```json
 {
@@ -103,7 +103,7 @@ Le contrôleur Stimulus est exposé comme un contrôleur Symfony UX. Activez-le 
 }
 ```
 
-Votre application doit démarrer StimulusBundle, par exemple dans `assets/bootstrap.js` :
+Your application must start StimulusBundle, for example in `assets/bootstrap.js`:
 
 ```javascript
 import { startStimulusApp } from '@symfony/stimulus-bundle';
@@ -111,19 +111,19 @@ import { startStimulusApp } from '@symfony/stimulus-bundle';
 startStimulusApp();
 ```
 
-Les pages standalone du calendrier (layout `@Calendar/calendar/base.html.twig`) rendent **automatiquement** l'entrypoint `importmap('app')`. C'est ce qui charge, sur `/events`, à la fois le contrôleur Stimulus `calendar` et les assets de votre application (dont Bootstrap s'il est dans votre `importmap.php`). Votre application doit donc disposer d'un entrypoint nommé `app` (le défaut Symfony).
+The calendar's standalone pages (the `@Calendar/calendar/base.html.twig` layout) **automatically** render the `importmap('app')` entrypoint. This is what loads, on `/events`, both the `calendar` Stimulus controller and your application's assets (including Bootstrap if it is in your `importmap.php`). Your application must therefore expose an entrypoint named `app` (the Symfony default).
 
-Si votre entrypoint porte un autre nom, surchargez le bloc `importmap` en créant `templates/bundles/CalendarBundle/calendar/base.html.twig` :
+If your entrypoint has a different name, override the `importmap` block by creating `templates/bundles/CalendarBundle/calendar/base.html.twig`:
 
 ```twig
 {% extends '@Calendar/calendar/base.html.twig' %}
 
 {% block importmap %}
-    {{ importmap('mon_entrypoint') }}
+    {{ importmap('my_entrypoint') }}
 {% endblock %}
 ```
 
-Pour intégrer le calendrier dans votre propre layout (au lieu de la page standalone), surchargez ce même template afin qu'il étende le layout de votre application :
+To embed the calendar in your own layout (instead of the standalone page), override the same template so that it extends your application's layout:
 
 ```twig
 {# templates/bundles/CalendarBundle/calendar/base.html.twig #}
@@ -135,28 +135,28 @@ Pour intégrer le calendrier dans votre propre layout (au lieu de la page standa
 {% endblock %}
 ```
 
-Ouvrez ensuite `/events`, ou `/calendar` si vous avez configuré `route_prefix: /calendar`.
+Then open `/events`, or `/calendar` if you configured `route_prefix: /calendar`.
 
-## Routes exposées
+## Exposed routes
 
-`{prefix}` vaut `/events` par défaut.
+`{prefix}` defaults to `/events`.
 
-| Méthode | Route | Nom | Description |
-|---------|-------|-----|-------------|
-| GET | `{prefix}` | `calendar_index` | Redirige vers la vue par défaut (`views.default`) |
-| GET | `{prefix}/{year}/{month}` | `calendar_month` | Affiche le calendrier mensuel |
-| GET | `{prefix}/week/{date}` | `calendar_week` | Affiche la semaine contenant `{date}` (`Y-m-d`) |
-| GET | `{prefix}/day/{date}` | `calendar_day` | Affiche le jour `{date}` (`Y-m-d`) |
-| GET, POST | `{prefix}/new` | `calendar_event_new` | Affiche le formulaire et crée l'événement |
-| GET, POST | `{prefix}/{id}/edit` | `calendar_event_edit` | Affiche le formulaire et met à jour l'événement |
-| POST | `{prefix}/{id}/exclude/{date}` | `calendar_event_exclude_date` | Exclut une date pour un événement |
-| POST, DELETE | `{prefix}/{id}` | `calendar_event_delete` | Supprime l'événement |
+| Method | Route | Name | Description |
+|--------|-------|------|-------------|
+| GET | `{prefix}` | `calendar_index` | Redirects to the default view (`views.default`) |
+| GET | `{prefix}/{year}/{month}` | `calendar_month` | Renders the monthly calendar |
+| GET | `{prefix}/week/{date}` | `calendar_week` | Renders the week containing `{date}` (`Y-m-d`) |
+| GET | `{prefix}/day/{date}` | `calendar_day` | Renders the `{date}` day (`Y-m-d`) |
+| GET, POST | `{prefix}/new` | `calendar_event_new` | Renders the form and creates the event |
+| GET, POST | `{prefix}/{id}/edit` | `calendar_event_edit` | Renders the form and updates the event |
+| POST | `{prefix}/{id}/exclude/{date}` | `calendar_event_exclude_date` | Excludes a date for an event |
+| POST, DELETE | `{prefix}/{id}` | `calendar_event_delete` | Deletes the event |
 
-## Entité personnalisée
+## Custom entity
 
-L'entité par défaut est `JeanSebastienChristophe\CalendarBundle\Entity\Event`. Pour utiliser votre propre entité, elle doit implémenter `CalendarEventInterface`. Le trait `CalendarEventTrait` fournit le mapping Doctrine commun.
+The default entity is `JeanSebastienChristophe\CalendarBundle\Entity\Event`. To use your own entity, it must implement `CalendarEventInterface`. The `CalendarEventTrait` provides the common Doctrine mapping.
 
-Vous pouvez configurer l'entité avec la commande d'installation :
+You can configure the entity with the install command:
 
 ```bash
 php bin/console ux-calendar:install --event-class='App\Entity\MyEvent'
@@ -196,7 +196,7 @@ class MyEvent implements CalendarEventInterface
 }
 ```
 
-Le repository associé doit implémenter `CalendarEventRepositoryInterface`, car le contrôleur du bundle charge les événements mensuels via `findByMonth()`.
+The associated repository must implement `CalendarEventRepositoryInterface`, because the bundle's controller loads the monthly events through `findByMonth()`.
 
 ```php
 <?php
@@ -236,9 +236,9 @@ final class MyEventRepository extends ServiceEntityRepository implements Calenda
 }
 ```
 
-### Vues semaine et jour (interface optionnelle)
+### Week and day views (optional interface)
 
-Les vues semaine et jour fonctionnent sans rien ajouter : le contrôleur retombe sur `findByMonth()` pour les mois couverts. Pour une requête unique optimisée sur une plage arbitraire, implémentez en plus `CalendarEventRangeRepositoryInterface` :
+The week and day views work out of the box: the controller falls back to `findByMonth()` for the months covered. For a single query optimized over an arbitrary range, also implement `CalendarEventRangeRepositoryInterface`:
 
 ```php
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventRangeRepositoryInterface;
@@ -265,50 +265,50 @@ final class MyEventRepository extends ServiceEntityRepository implements
 }
 ```
 
-Configurez ensuite le bundle :
+Then configure the bundle:
 
 ```yaml
 calendar:
     event_class: App\Entity\MyEvent
 ```
 
-Cette valeur est utilisée par les contrôleurs, le resolver d'arguments et `EventType`. Un `createForm(EventType::class, $event)` attend donc l'entité configurée, pas l'entité par défaut du bundle.
+This value is used by the controllers, the argument resolver and `EventType`. A `createForm(EventType::class, $event)` call therefore expects the configured entity, not the bundle's default entity.
 
 ## EasyAdmin
 
-Les helpers EasyAdmin sont optionnels. Installez EasyAdmin si nécessaire :
+The EasyAdmin helpers are optional. Install EasyAdmin if needed:
 
 ```bash
 composer require easycorp/easyadmin-bundle
 ```
 
-Puis référencez le CRUD fourni dans votre dashboard :
+Then reference the provided CRUD in your dashboard:
 
 ```php
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use JeanSebastienChristophe\CalendarBundle\Admin\EventCrudController;
 use JeanSebastienChristophe\CalendarBundle\Entity\Event;
 
-yield MenuItem::linkToCrud('Événements', 'fa fa-calendar', Event::class)
+yield MenuItem::linkToCrud('Events', 'fa fa-calendar', Event::class)
     ->setController(EventCrudController::class);
 ```
 
-Voir aussi :
+See also:
 
-- [Guide EasyAdmin](docs/EASYADMIN.md)
-- [Guide EasyAdmin avancé](docs/EASYADMIN_INTEGRATION.md)
-- [Guide d'utilisation avancée](docs/USAGE.md)
-- [Migration SQL](docs/MIGRATION.md)
+- [EasyAdmin guide](docs/EASYADMIN.md)
+- [Advanced EasyAdmin guide](docs/EASYADMIN_INTEGRATION.md)
+- [Advanced usage guide](docs/USAGE.md)
+- [SQL migration](docs/MIGRATION.md)
 
-## Qualité
+## Quality
 
-Le dépôt ne versionne pas `vendor/`. Installez les dépendances avec Composer :
+The repository does not version `vendor/`. Install the dependencies with Composer:
 
 ```bash
 composer install
 ```
 
-Commandes utiles avant une PR ou un tag :
+Useful commands before a PR or a tag:
 
 ```bash
 composer validate --strict
@@ -316,28 +316,28 @@ composer analyse
 composer test
 ```
 
-`composer analyse` exécute PHPStan niveau 5 avec les extensions Symfony et Doctrine.
+`composer analyse` runs PHPStan at level 5 with the Symfony and Doctrine extensions.
 
 ## Roadmap
 
-- Drag and drop pour déplacer les événements
-- Événements récurrents complets
-- Export iCal
-- Catégories d'événements
-- API REST
+- Drag and drop to move events
+- Full recurring events
+- iCal export
+- Event categories
+- REST API
 
-## Contribution
+## Contributing
 
-1. Forker le projet
-2. Créer une branche (`git checkout -b feature/amazing-feature`)
-3. Installer les dépendances (`composer install`)
-4. Exécuter `composer analyse` et `composer test`
-5. Pousser la branche et ouvrir une Pull Request
+1. Fork the project
+2. Create a branch (`git checkout -b feature/amazing-feature`)
+3. Install the dependencies (`composer install`)
+4. Run `composer analyse` and `composer test`
+5. Push the branch and open a Pull Request
 
-## Licence
+## License
 
 MIT
 
 ## Support
 
-Pour toute question ou problème, ouvrez une issue sur GitHub : <https://github.com/JsD3v/ux-calendar-bundle/issues>
+For any question or issue, open an issue on GitHub: <https://github.com/JsD3v/ux-calendar-bundle/issues>
