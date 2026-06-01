@@ -1,14 +1,14 @@
-# CalendarBundle pour Symfony 7.4 / 8
+# CalendarBundle pour Symfony 8
 
 [![Tests](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml/badge.svg)](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/test.yml)
 [![PHPStan](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/phpstan.yml/badge.svg)](https://github.com/JsD3v/ux-calendar-bundle/actions/workflows/phpstan.yml)
 
-Bundle calendrier léger pour Symfony 7.4 et 8, basé sur Turbo, Stimulus et AssetMapper. Il fournit une vue mensuelle, des formulaires de gestion d'événements et des helpers EasyAdmin, sans dépendance JavaScript lourde de type FullCalendar. Les CDN tiers ne sont pas chargés par défaut.
+Bundle calendrier léger pour Symfony 8, basé sur Turbo, Stimulus et AssetMapper. Il fournit une vue mensuelle, des formulaires de gestion d'événements et des helpers EasyAdmin, sans dépendance JavaScript lourde de type FullCalendar. Les CDN tiers ne sont pas chargés par défaut.
 
 ## Compatibilité
 
-- PHP >= 8.2
-- Symfony FrameworkBundle, Form, Validator, TwigBundle, Console, Translation et AssetMapper `^7.4|^8.0`
+- PHP >= 8.4
+- Symfony FrameworkBundle, Form, Validator, TwigBundle, Console, Translation et AssetMapper `^8.0`
 - Symfony UX Turbo et Stimulus Bundle `^2.0|^3.0`
 - Doctrine ORM `^2.0|^3.0` et DoctrineBundle `^2.0|^3.0`
 - EasyAdmin `^4.0|^5.0` optionnel pour l'admin
