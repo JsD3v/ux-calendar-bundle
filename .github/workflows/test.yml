@@ -13,40 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php-version: '8.2'
-            stack: 'Symfony 7.4 / UX 2 / EasyAdmin 4 lowest'
-            constraints: >-
-              symfony/framework-bundle:^7.4
-              symfony/asset-mapper:^7.4
-              symfony/console:^7.4
-              symfony/form:^7.4
-              symfony/validator:^7.4
-              symfony/twig-bundle:^7.4
-              symfony/translation:^7.4
-              symfony/ux-turbo:^2.0
-              symfony/stimulus-bundle:^2.0
-            dev-constraints: >-
-              symfony/yaml:^7.4
-              symfony/ux-chartjs:^2.0
-              easycorp/easyadmin-bundle:^4.0
-            composer-flags: '--prefer-lowest --prefer-stable'
-          - php-version: '8.3'
-            stack: 'Symfony 7.4 / UX 2 / EasyAdmin 4 latest'
-            constraints: >-
-              symfony/framework-bundle:^7.4
-              symfony/asset-mapper:^7.4
-              symfony/console:^7.4
-              symfony/form:^7.4
-              symfony/validator:^7.4
-              symfony/twig-bundle:^7.4
-              symfony/translation:^7.4
-              symfony/ux-turbo:^2.0
-              symfony/stimulus-bundle:^2.0
-            dev-constraints: >-
-              symfony/yaml:^7.4
-              symfony/ux-chartjs:^2.0
-              easycorp/easyadmin-bundle:^4.0
-            composer-flags: ''
           - php-version: '8.4'
             stack: 'Symfony 8 / UX 3 / EasyAdmin 5 latest'
             constraints: >-
