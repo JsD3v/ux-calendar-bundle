@@ -225,4 +225,19 @@ class EventTypeTest extends TypeTestCase
         $this->assertEquals('Existing description', $form->get('description')->getData());
         $this->assertEquals('#ff00ff', $form->get('color')->getData());
     }
+
+    public function testConstructorRejectsAMissingEventClass(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessageMatches('/calendar\.event_class/');
+
+        new EventType();
+    }
+
+    protected function getTypes(): array
+    {
+        return [
+            new EventType(Event::class),
+        ];
+    }
 }

@@ -3,7 +3,6 @@
 namespace JeanSebastienChristophe\CalendarBundle\Form;
 
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventInterface;
-use JeanSebastienChristophe\CalendarBundle\Entity\Event;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
@@ -15,9 +14,27 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EventType extends AbstractType
 {
+    /**
+     * @param class-string<CalendarEventInterface>|null $eventClass The configured
+     *        `calendar.event_class`. The argument stays optional to keep the
+     *        signature backward compatible, but it deliberately has no class
+     *        default: falling back to the bundle entity would silently produce a
+     *        `data_class` pointing at the wrong class for any subclass declared
+     *        in an application, since the bundle's `bind` only applies to
+     *        services in its own namespace.
+     */
     public function __construct(
-        private readonly string $eventClass = Event::class
+        private readonly ?string $eventClass = null
     ) {
+        if (null === $this->eventClass) {
+            throw new \LogicException(sprintf(
+                'The event class is missing. "%s" must receive the configured "calendar.event_class". '
+                . 'When extending it in your application, forward the parameter explicitly, for example: '
+                . 'services: App\Form\MyEventType: { arguments: ["%%calendar.event_class%%"] }.',
+                static::class
+            ));
+        }
+
         if (!is_a($this->eventClass, CalendarEventInterface::class, true)) {
             throw new \InvalidArgumentException(sprintf(
                 'The event class "%s" must implement "%s".',

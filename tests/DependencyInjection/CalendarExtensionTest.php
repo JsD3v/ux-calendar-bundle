@@ -254,4 +254,49 @@ class CalendarExtensionTest extends TestCase
             $this->assertStringContainsString('importmap:install', $message);
         }
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function prependWith(array $bundles, ?string $eventClass): array
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.bundles', $bundles);
+        $container->registerExtension($this->extension);
+        $container->loadFromExtension('calendar', $eventClass === null ? [] : ['event_class' => $eventClass]);
+
+        $this->extension->prepend($container);
+
+        return $container->getExtensionConfig('doctrine');
+    }
+
+    public function testPrependRegistersDoctrineMappingForTheBundleEntity(): void
+    {
+        $configs = $this->prependWith(
+            ['DoctrineBundle' => 'Doctrine\\Bundle\\DoctrineBundle\\DoctrineBundle'],
+            null
+        );
+
+        $this->assertCount(1, $configs);
+        $mapping = $configs[0]['orm']['mappings']['CalendarBundle'];
+        $this->assertSame('attribute', $mapping['type']);
+        $this->assertSame('JeanSebastienChristophe\\CalendarBundle\\Entity', $mapping['prefix']);
+        $this->assertFalse($mapping['is_bundle']);
+        $this->assertDirectoryExists($mapping['dir']);
+    }
+
+    public function testPrependSkipsDoctrineMappingWhenAnotherEventClassIsConfigured(): void
+    {
+        $configs = $this->prependWith(
+            ['DoctrineBundle' => 'Doctrine\\Bundle\\DoctrineBundle\\DoctrineBundle'],
+            CustomEvent::class
+        );
+
+        $this->assertSame([], $configs, 'An application mapping its own entity must not inherit calendar_events.');
+    }
+
+    public function testPrependSkipsDoctrineMappingWithoutDoctrineBundle(): void
+    {
+        $this->assertSame([], $this->prependWith([], null));
+    }
 }

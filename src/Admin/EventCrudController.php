@@ -41,9 +41,31 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
  */
 class EventCrudController extends AbstractCrudController
 {
+    /**
+     * FQCN of the configured `calendar.event_class`.
+     *
+     * EasyAdmin calls getEntityFqcn() statically, so the value cannot be
+     * injected through the constructor. CalendarBundle::boot() pushes the
+     * configured class here; the bundle entity stays the fallback when the
+     * bundle is used outside a booted kernel (e.g. in a unit test).
+     *
+     * @var class-string|null
+     */
+    private static ?string $entityFqcn = null;
+
+    /**
+     * @param class-string $entityFqcn
+     *
+     * @internal Called by {@see \JeanSebastienChristophe\CalendarBundle\CalendarBundle::boot()}
+     */
+    public static function setEntityFqcn(string $entityFqcn): void
+    {
+        self::$entityFqcn = $entityFqcn;
+    }
+
     public static function getEntityFqcn(): string
     {
-        return Event::class;
+        return self::$entityFqcn ?? Event::class;
     }
 
     public function configureCrud(Crud $crud): Crud

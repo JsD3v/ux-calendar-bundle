@@ -3,6 +3,7 @@
 namespace JeanSebastienChristophe\CalendarBundle\DependencyInjection;
 
 use JeanSebastienChristophe\CalendarBundle\Contract\CalendarEventInterface;
+use JeanSebastienChristophe\CalendarBundle\Entity\Event;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,22 +15,87 @@ class CalendarExtension extends Extension implements PrependExtensionInterface
 {
     public function prepend(ContainerBuilder $container): void
     {
-        if (!$this->isAssetMapperAvailable($container)) {
+        if ($this->isAssetMapperAvailable($container)) {
+            $container->prependExtensionConfig('framework', [
+                'asset_mapper' => [
+                    'paths' => [
+                        __DIR__ . '/../../assets' => '@calendar-bundle',
+                    ],
+                ],
+            ]);
+        }
+
+        $this->prependDoctrineMapping($container);
+    }
+
+    /**
+     * Registers the Doctrine mapping for the bundle's own Event entity.
+     *
+     * Doctrine does not scan third-party bundles, so without this the shipped
+     * entity is unknown to the ORM: make:migration generates nothing and the
+     * first request fails with "not found in the chain configured namespaces".
+     *
+     * The mapping is only registered when the application actually uses the
+     * bundle entity. An application mapping its own `event_class` must not
+     * inherit a stray `calendar_events` table in its schema.
+     */
+    private function prependDoctrineMapping(ContainerBuilder $container): void
+    {
+        if (!$container->hasParameter('kernel.bundles')) {
             return;
         }
 
-        $container->prependExtensionConfig('framework', [
-            'asset_mapper' => [
-                'paths' => [
-                    __DIR__ . '/../../assets' => '@calendar-bundle',
+        $bundles = $container->getParameter('kernel.bundles');
+
+        if (!\is_array($bundles) || !isset($bundles['DoctrineBundle'])) {
+            return;
+        }
+
+        if (!$this->usesBundleEventEntity($container)) {
+            return;
+        }
+
+        $container->prependExtensionConfig('doctrine', [
+            'orm' => [
+                'mappings' => [
+                    'CalendarBundle' => [
+                        'type' => 'attribute',
+                        'dir' => __DIR__ . '/../Entity',
+                        'prefix' => 'JeanSebastienChristophe\CalendarBundle\Entity',
+                        'alias' => 'Calendar',
+                        'is_bundle' => false,
+                    ],
                 ],
             ],
         ]);
     }
 
+    /**
+     * Resolves `calendar.event_class` from the raw configs.
+     *
+     * prepend() runs before load(), so the processed configuration is not
+     * available yet; the last declaration wins, mirroring how the Config
+     * component merges scalar nodes.
+     */
+    private function usesBundleEventEntity(ContainerBuilder $container): bool
+    {
+        foreach (array_reverse($container->getExtensionConfig('calendar')) as $config) {
+            if (isset($config['event_class'])) {
+                return ltrim((string) $config['event_class'], '\\') === Event::class;
+            }
+        }
+
+        // No explicit configuration: the default is the bundle entity.
+        return true;
+    }
+
     private function isAssetMapperAvailable(ContainerBuilder $container): bool
     {
         if (!interface_exists(AssetMapperInterface::class)) {
+            return false;
+        }
+
+        if (!$container->hasParameter('kernel.bundles_metadata')) {
             return false;
         }
 

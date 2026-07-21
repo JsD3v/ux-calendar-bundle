@@ -61,7 +61,7 @@ calendar:
         colors: true
 ```
 
-Create and apply the Doctrine migration:
+The bundle registers the Doctrine mapping for its own `Event` entity (table `calendar_events`), so it is picked up by the schema tools out of the box. Create and apply the migration:
 
 ```bash
 php bin/console make:migration
@@ -272,7 +272,9 @@ calendar:
     event_class: App\Entity\MyEvent
 ```
 
-This value is used by the controllers, the argument resolver and `EventType`. A `createForm(EventType::class, $event)` call therefore expects the configured entity, not the bundle's default entity.
+This value is used by the controllers, the argument resolver, `EventType` and `EventCrudController`. A `createForm(EventType::class, $event)` call therefore expects the configured entity, not the bundle's default entity.
+
+As soon as `event_class` points somewhere else, the bundle stops registering the Doctrine mapping for its own `Event` entity: your schema only contains your table, with no leftover `calendar_events`. Mapping your entity is then up to your application, as usual.
 
 ## EasyAdmin
 
@@ -290,6 +292,13 @@ use JeanSebastienChristophe\CalendarBundle\Admin\EventCrudController;
 use JeanSebastienChristophe\CalendarBundle\Entity\Event;
 
 yield MenuItem::linkToCrud('Events', 'fa fa-calendar', Event::class)
+    ->setController(EventCrudController::class);
+```
+
+`EventCrudController::getEntityFqcn()` follows `calendar.event_class`, so with a custom entity link the menu item to that class instead:
+
+```php
+yield MenuItem::linkToCrud('Events', 'fa fa-calendar', MyEvent::class)
     ->setController(EventCrudController::class);
 ```
 
